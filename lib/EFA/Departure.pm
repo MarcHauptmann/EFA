@@ -21,6 +21,11 @@ has "line" => (isa => "Int",
                reader => "get_line",
                writer => "set_line");
 
+has "id" => (isa => "Int",
+	     is => "rw",
+	     reader => "get_id",
+	     writer => "set_id");
+
 sub get_type {
   my $self = shift;
 

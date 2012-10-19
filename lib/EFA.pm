@@ -39,7 +39,6 @@ sub get_departures {
   $mech->get("http://efa.de/gvh/XSLT_STOP_INFO_REQUEST");
 
   $mech->field("place_si", "Hannover");
-  #$mech->field("name_si", uri_escape("Kröpcke"));
   $mech->field("name_si", $ARGV[0]);
   $mech->field("stopService", "departureBoard");
   $mech->submit();

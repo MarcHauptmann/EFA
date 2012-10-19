@@ -13,7 +13,7 @@ sub parse_time {
   my $time_str = $_[0];
   my $now = DateTime->now(time_zone => "local");
 
-  if ($time_str =~ /^(\d\d?)\.(\d\d?)\.(\d*)\s*(\d\d?):(\d\d?)/) {
+  if ($time_str =~ /^(\d\d?)\.(\d\d?)\.(\d*).*(\d\d?):(\d\d?)/) {
     my $day = $1;
     my $mon = $2;
     my $year = $3;

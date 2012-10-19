@@ -2,7 +2,6 @@
 
 use Test::More;
 use EFA::Utils;
-# use Time::Piece;
 use DateTime;
 use strict;
 use warnings;
@@ -26,14 +25,15 @@ subtest "Zeitangabe bezieht sich auf heute" => sub {
 };
 
 subtest "Zeit mit Datum kann geparst werden" => sub {
-  my $str = "17.09.2010   07:30";
+  my $str = "20.10.2012\t00:10";
+
   my $result = parse_time($str);
 
-  is($result->mday, 17, "Tag ist 17");
-  is($result->mon, 9, "Monat ist 10");
-  is($result->hour, 7, "Stunde ist 7");
-  is($result->minute, 30, "Minute ist 30");
-  is($result->year, 2010, "Jahr ist 2012");
+  is($result->mday, 20, "Tag ist 20");
+  is($result->mon, 10, "Monat ist 10");
+  is($result->hour, 0, "Stunde ist 0");
+  is($result->minute, 10, "Minute ist 10");
+  is($result->year, 2012, "Jahr ist 2012");
 };
 
 done_testing();

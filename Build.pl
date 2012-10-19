@@ -6,6 +6,7 @@ my $builder = Module::Build->new
  dist_version_from => "lib/EFA.pm",
  dist_author => "Marc Hauptmann <marc.hauptmann@stud.uni-hannover.de>",
  dist_abstract => "Zugriff auf efa.de",
+ recursive_test_files => 1,
  requires => {
 	      "HTML::TreeBuilder" => 0,
 	      "WWW::Mechanize" => 0,
