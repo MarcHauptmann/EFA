@@ -16,6 +16,7 @@ sub setup_db : Test(setup) {
 
 # räumt nach einem Test wieder auf
 sub tear_down_db : Test(teardown) {
+  # reset_departure_schema();
   close_departure_dao();
 }
 
@@ -24,69 +25,96 @@ sub test_init : Test {
   my $result = get_departure_count();
 
   is($result, 0, "kein Depature gespeichert");
-};
+}
+;
+
+# Standard-Departure erstellen
+sub make_default_departure {
+  return EFA::Departure->new(line => 120,
+                             destination => "Test",
+                             time => DateTime->now());
+}
 
 # ID wird beim Speichern gesetzt
-sub test_store : Test {
-  my $departure = EFA::Departure->new();
-  $departure->set_line(120);
-  $departure->set_destination("Test");
-  $departure->set_time(DateTime->now());
+sub test_store : Tests {
+  my $departure = make_default_departure();
 
+  # speichern
   store_departure(\$departure);
 
   cmp_ok($departure->get_id(), ">", 0, "ID ist größer 0");
+  is(get_departure_count(), 1, "ein Departure gespeichert");
 }
 
 # store eines bestehenden Departures ändert ID nicht
 sub test_update_id : Tests {
-  my $departure = EFA::Departure->new();
-  $departure->set_line(120);
-  $departure->set_destination("Test");
-  $departure->set_time(DateTime->now());
+  my $departure = make_default_departure();
 
+  # speichern
   store_departure(\$departure);
 
   my $id = $departure->get_id();
 
+  # speichern -> Update
   store_departure(\$departure);
 
   is($departure->get_id(), $id, "ID wurde nicht verändert");
   is(get_departure_count(), 1, "nur eine Departure in der Datenbank");
-};
+}
+;
 
 # store eine bestehenden Departures macht Update
 sub test_update_store : Tests {
-  my $departure = EFA::Departure->new();
-  $departure->set_line(120);
-  $departure->set_destination("Test");
-  $departure->set_time(DateTime->now());
+  my $departure = make_default_departure();
 
+  # speichern
   store_departure(\$departure);
 
   $departure->set_destination("Test2");
 
+  # speichern -> Update
   store_departure(\$departure);
 
   my $stored_departure = load_departure_by_id($departure->get_id());
 
   is_deeply($stored_departure, $departure, "Update wurde durchgeführt");
-};
+}
+;
 
 # Departure kann gespeichert und geladen werden
-sub test_store_load : Test(no_plan) {
-  my $departure = EFA::Departure->new();
-  $departure->set_line(120);
-  $departure->set_destination("Test");
-  $departure->set_time(DateTime->now());
+sub test_store_load : Tests {
+  my $departure = make_default_departure();
 
+  # speichern
   store_departure(\$departure);
 
+  # wieder laden
   my $loaded_departure = load_departure_by_id($departure->get_id());
 
   isnt($loaded_departure, undef, "Departure wird geladen");
-  is_deeply($loaded_departure, $departure, "Departure passt");
-};
+  is_deeply($loaded_departure, $departure, "geladenes Departure stimmt mit gespeicherten überein");
+}
+;
+
+# Existenz einer vorhandenen Departure kann geprüft werden
+sub test_departure_is_persistent : Tests {
+  my $departure = make_default_departure();
+  my $departure_copy = make_default_departure();
+
+  # erstes Mal ist nicht persistent
+  my $result_not_persistent = departure_is_persistent(\$departure_copy);
+
+  # speichern
+  store_departure(\$departure);
+
+  is($result_not_persistent, 0, "Departure ist nicht in Datenbank vorhanden");
+
+  # zweites Mal ist persistent
+  my $result_persistent = departure_is_persistent(\$departure_copy);
+
+  is($result_persistent, 1, "Departure ist in Datenbank vorhanden");
+}
+;
 
 Test::Class->runtests;
 

@@ -45,5 +45,11 @@ subtest "Stunden werden bei Abfahrzeit weggelassen wenn unnötig" => sub {
   is($departure->get_wait_str(), "20", "Abfahrt in 2 Minuten");
 };
 
+subtest "Endstation kann Konstruktor übergeben werden" => sub {
+  my $departure = EFA::Departure->new(destination => "Test");
+
+  is($departure->get_destination(), "Test", "Endstation stimmt");
+};
+
 done_testing();
 

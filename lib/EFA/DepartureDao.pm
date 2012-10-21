@@ -11,7 +11,8 @@ use DateTime;
               get_departure_count
               store_departure
               load_departure_by_id
-              close_departure_dao);
+              close_departure_dao
+              departure_is_persistent);
 
 our $connection;
 
@@ -81,6 +82,28 @@ sub load_departure_by_id {
   $departure->set_time(DateTime->from_epoch(epoch => $$row_ref{"time"}));
 
   return $departure;
+}
+
+# Existenz in der Datenbank kann geprüft werden
+sub departure_is_persistent {
+  $departure = ${$_[0]};
+
+  my $line = $departure->get_line;
+  my $dest = $departure->get_destination;
+  my $time = $departure->get_time->epoch;
+
+  my $query = <<EOF;
+SELECT COUNT(*) AS num FROM departures WHERE
+    line=$line AND destination='$dest' AND time=$time;
+EOF
+
+  my $row_ref = $connection->selectrow_hashref($query);
+
+  if($$row_ref{"num"} > 0) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 1;
