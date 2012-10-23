@@ -36,11 +36,13 @@ subtest "Departures können aus XML erzeugt werden" => sub {
   my $time2 = DateTime->new(year => 2012, month => 10, day => 20,
                             hour => 20, minute => 55);
 
+  # erste Abfahrt
   is($departures[0]->get_line(), 2, "erste Linie ist 2");
   is($departures[0]->get_destination(), "Rethen", "erste Linie fährt nach Rethen");
   is($departures[0]->get_time(), $time1, "erste Abfahrt ist um 20:48 am 20.10.2012");
   is($departures[0]->get_type(), "Bahn", "erste Abhfahrt ist Stadtbahn");
 
+  # letzte Abfahrt
   is($departures[4]->get_line(), 1, "letzte Linie ist 1");
   is($departures[4]->get_destination(), "Laatzen", "letzte Linie fährt nach Laatzen");
   is($departures[4]->get_time(), $time2, "letzte Abfahrt ist um 20:55 am 20.10.2012");
