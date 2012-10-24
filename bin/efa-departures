@@ -4,25 +4,56 @@ use utf8;
 use strict;
 use EFA;
 use POSIX;
+use DateTime;
 use Text::Table;
+use Getopt::Long;
 
 binmode(STDOUT, ":utf8");
 
-my @departures = get_departures($ARGV[0]);
+our $num = 10;
+our $time = DateTime->now(time_zone => "local");
 
-if (scalar(@departures) > 0) {
-  my $table = Text::Table->new("Minuten", "Linie", "Ziel");
+sub set_date {
+  my $date_str = $_[1];
 
-  for my $line (@departures) {
-    $table->add($line->get_wait_str(),
-                $line->get_line(),
-                $line->get_destination());
-  }
+  $date_str =~ /(\d\d?).(\d\d?).(\d\d\d\d)/;
 
-  print $table->title;
-  print $table->rule("-");
-  print $table->body;
-} else {
-  print "Keine Abfahrten gefunden\n";
+  $time->set(day => $1, month => $2, year => $3);
 }
 
+sub set_time {
+  my $time_str = $_[1];
+
+  $time_str =~ /(\d\d?):(\d\d?)/;
+
+  $time->set(hour => $1, minute => $2);
+}
+
+sub show_departures {
+  print "$time\n";
+
+  my @departures = get_departures($_[0],
+                                  time => $time,
+                                  num => $num);
+
+  if (scalar(@departures) > 0) {
+    my $table = Text::Table->new("Minuten", "Linie", "Ziel");
+
+    for my $line (@departures) {
+      $table->add($line->get_wait_str(),
+                  $line->get_line(),
+                  $line->get_destination());
+    }
+
+    print $table->title;
+    print $table->rule("-");
+    print $table->body;
+  } else {
+    print "Keine Abfahrten gefunden\n";
+  }
+}
+
+GetOptions("<>" => \&show_departures,
+           "num|n=i" => \$num,
+           "date|d=s" => \&set_date,
+           "time|t=s" => \&set_time);

@@ -11,16 +11,40 @@ use EFA::Departure;
 use EFA::Utils;
 use XML::XPath;
 use LWP::UserAgent;
+use DateTime;
 use utf8;
 use strict;
 use warnings;
 use Encode;
 
 sub get_departures {
-  my $station_id = $_[0];
+  my ($station_id, %values) = @_;
   my $ua = LWP::UserAgent->new();
 
-  my $response = $ua->get("http://mobil.efa.de/mobile3/XSLT_DM_REQUEST?maxAssignedStops=1&mode=direct&limit=10&name_dm=$station_id&type_dm=stopID&outputFormat=xml");
+  my $num = 5;
+
+  if ($values{"num"}) {
+    $num = $values{"num"};
+  }
+
+  my $time = DateTime->now(time_zone => "local");
+
+  if ($values{"time"}) {
+    $time = $values{"time"};
+  }
+
+  my $url = "http://mobil.efa.de/mobile3/XSLT_DM_REQUEST?maxAssignedStops=1";
+
+  $url .= "&outputFormat=xml";
+  $url .= "&mode=direct";
+  $url .= "&name_dm=$station_id";
+  $url .= "&limit=$num";
+  $url .= "&type_dm=stopID";
+  $url .= "&itdTimeHour=".$time->hour;
+  $url .= "&itdTimeMinute=".$time->minute;
+  $url .= "&itdDate=".$time->year.$time->month.$time->day;
+
+  my $response = $ua->get($url);
 
   my $xml = $response->content();
 
