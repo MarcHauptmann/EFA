@@ -49,4 +49,16 @@ subtest "Departures können aus XML erzeugt werden" => sub {
   is($departures[4]->get_type(), "Bahn", "letzte Abhfahrt ist Stadtbahn");
 };
 
+subtest "Stationen könne gesucht werden" => sub {
+  my $xml = read_test_xml("t/stations.xml");
+
+  my %stations = stations_from_xml($xml);
+
+  is(scalar(keys %stations), 4, "4 Stationen gefunden");
+  ok($stations{25000011} =~ /^Kr.pcke$/, "Kröpcke");
+  ok($stations{25000001} =~ /^Kr.pcke\/Theaterstra.e$/, "Kröpcke/Theaterstraße");
+  ok($stations{839} =~ /^Kr.pckepassage$/, "Kröpckepassage");
+  ok($stations{1000002256} =~ /^Kr.pcke$/, "Kröpcke");
+};
+
 done_testing();

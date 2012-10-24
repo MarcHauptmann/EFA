@@ -3,7 +3,7 @@ package EFA;
 require Exporter;
 
 @ISA = qw(Exporter);
-@EXPORT = qw(get_departures departures_from_xml);
+@EXPORT = qw(get_departures departures_from_xml stations_from_xml find_station);
 
 $VERSION = "0.0.1";
 
@@ -14,6 +14,7 @@ use LWP::UserAgent;
 use utf8;
 use strict;
 use warnings;
+use Encode;
 
 sub get_departures {
   my $station_id = $_[0];
@@ -36,6 +37,17 @@ sub get_value {
   } else {
     return undef;
   }
+}
+
+sub find_station {
+  my $query = $_[0];
+  my $ua = LWP::UserAgent->new();
+
+  my $response = $ua->get("http://mobil.efa.de/mobile3/XSLT_DM_REQUEST?limit=10&locationServerActive=1&maxAssignedStops=1&mode=direct&name_dm=$query&place_dm=Hannover&type_dm=any&outputFormat=xml");
+
+  my $xml = $response->content();
+
+  return stations_from_xml($xml);
 }
 
 sub departures_from_xml {
@@ -63,6 +75,23 @@ sub departures_from_xml {
   }
 
   return @result;
+}
+
+sub stations_from_xml {
+  my $xml = $_[0];
+
+  my %result = ();
+
+  my $xp = XML::XPath->new(xml => $xml);
+
+  foreach my $node ($xp->findnodes("//odvNameElem")) {
+    my $name = get_value("\@objectName", $node);
+    my $id = get_value("\@id", $node);
+
+    $result{$id} = $name;
+  }
+
+  return %result;
 }
 
 1;
