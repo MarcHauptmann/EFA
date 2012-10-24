@@ -3,3 +3,9 @@ _build
 MYMETA.*
 blib
 *~
+*.old
+EFA-*
+MANIFEST
+Makefile
+pm_to_blib
+*.tmp
