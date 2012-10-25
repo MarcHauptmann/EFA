@@ -7,12 +7,14 @@ use POSIX;
 use DateTime;
 use Text::Table;
 use Getopt::Long;
+use Pod::Usage;
 
 binmode(STDOUT, ":utf8");
 
 our $num = 10;
 our $time = DateTime->now(time_zone => "local");
 
+# Setzt das Datum für die Abfrage
 sub set_date {
   my $date_str = $_[1];
 
@@ -21,6 +23,7 @@ sub set_date {
   $time->set(day => $1, month => $2, year => $3);
 }
 
+# Setzt die Zeit für die Abfrage
 sub set_time {
   my $time_str = $_[1];
 
@@ -29,31 +32,86 @@ sub set_time {
   $time->set(hour => $1, minute => $2);
 }
 
-sub show_departures {
-  print "$time\n";
-
-  my @departures = get_departures($_[0],
-                                  time => $time,
-                                  num => $num);
-
-  if (scalar(@departures) > 0) {
-    my $table = Text::Table->new("Minuten", "Linie", "Ziel");
-
-    for my $line (@departures) {
-      $table->add($line->get_wait_str(),
-                  $line->get_line(),
-                  $line->get_destination());
-    }
-
-    print $table->title;
-    print $table->rule("-");
-    print $table->body;
-  } else {
-    print "Keine Abfahrten gefunden\n";
-  }
+# Hilfe anzeigen und beenden
+sub print_help {
+  pod2usage(verbose => 1);
 }
+
+  # Zeigt die Abfahren an
+  sub show_departures {
+    my @departures = get_departures($_[0],
+                                    time => $time,
+                                    num => $num);
+
+    if (scalar(@departures) > 0) {
+      my $table = Text::Table->new("Minuten", "Linie", "Ziel");
+
+      for my $line (@departures) {
+        $table->add($line->get_wait_str(),
+                    $line->get_line(),
+                    $line->get_destination());
+      }
+
+      print $table->title;
+      print $table->rule("-");
+      print $table->body;
+    } else {
+      print "Keine Abfahrten gefunden\n";
+    }
+  }
+
+
+=pod
+
+=encoding utf8
+
+Zeigt die nächsten Abfahrten für eine Station an.
+
+=head1 SYNOPSIS
+
+efa-deparures [OPTIONS] STATIONS-ID
+
+=head1 ARGUMENTS
+
+=over 8
+
+=item B<STATIONS-ID>
+
+ID der Station für die der die nächsten Abfahrten angezeigt werden sollen
+
+=back
+
+=cut
 
 GetOptions("<>" => \&show_departures,
            "num|n=i" => \$num,
            "date|d=s" => \&set_date,
-           "time|t=s" => \&set_time);
+           "time|t=s" => \&set_time,
+           "help" => \&print_help);
+
+=pod
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--num> I<n>, B<-n> I<n>
+
+Frage die nächsten I<n> Abfahrten ab
+
+=item B<--date> I<date>, B<-d> I<date>
+
+Setzt das Datum für die Abfrage auf das übergebene I<date>. Beispeil: "14.2.2012".
+
+=item B<--time> I<time>, B<-t> I<time>
+
+Setzt die Uhrzeit für die Abfrage. Beispiel: "03:14"
+
+=item B<--help>
+
+Zeigt diese Hilfe an.
+
+=back
+
+=cut
+
