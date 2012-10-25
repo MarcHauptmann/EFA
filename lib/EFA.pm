@@ -69,13 +69,13 @@ sub find_station {
 
   my $url = "http://mobil.efa.de/mobile3/XSLT_DM_REQUEST?maxAssignedStops=1";
 
-  $url .= "&limit=10";
-  $url .= "&locationServerActive=1";
+  $url .= "&outputFormat=xml";
   $url .= "&mode=direct";
   $url .= "&name_dm=$query";
-  $url .= "&place_dm=Hannover";
+  $url .= "&limit=10";
   $url .= "&type_dm=any";
-  $url .= "&outputFormat=xml";
+  $url .= "&place_dm=Hannover";
+  $url .= "&locationServerActive=1";
 
   my $response = $ua->get($url);
 
