@@ -67,7 +67,17 @@ sub find_station {
   my $query = $_[0];
   my $ua = LWP::UserAgent->new();
 
-  my $response = $ua->get("http://mobil.efa.de/mobile3/XSLT_DM_REQUEST?limit=10&locationServerActive=1&maxAssignedStops=1&mode=direct&name_dm=$query&place_dm=Hannover&type_dm=any&outputFormat=xml");
+  my $url = "http://mobil.efa.de/mobile3/XSLT_DM_REQUEST?maxAssignedStops=1";
+
+  $url .= "&limit=10";
+  $url .= "&locationServerActive=1";
+  $url .= "&mode=direct";
+  $url .= "&name_dm=$query";
+  $url .= "&place_dm=Hannover";
+  $url .= "&type_dm=any";
+  $url .= "&outputFormat=xml";
+
+  my $response = $ua->get($url);
 
   my $xml = $response->content();
 
@@ -110,7 +120,7 @@ sub stations_from_xml {
   my $xp = XML::XPath->new(xml => $xml);
 
   foreach my $node ($xp->findnodes("//odvNameElem")) {
-    my $name = get_value("\@objectName", $node);
+    my $name = get_value("text()", $node);
     my $id = get_value("\@id", $node);
 
     $result{$id} = $name;

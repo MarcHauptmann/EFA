@@ -77,7 +77,7 @@ efa-deparures [OPTIONS] STATIONS-ID
 
 =over 8
 
-=item B<STATIONS-ID>
+=item I<STATIONS-ID>
 
 ID der Station für die der die nächsten Abfahrten angezeigt werden sollen
 

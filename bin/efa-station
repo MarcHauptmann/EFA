@@ -2,23 +2,64 @@
 
 use EFA;
 use Text::Table;
+use Getopt::Long;
+use Pod::Usage;
 
 binmode(STDOUT, ":utf8");
 
-my $query = $ARGV[0];
-
-my %stations = find_station($query);
-
-if (scalar(keys %stations) > 0) {
-  my $table = Text::Table->new("Station", "ID");
-
-  while (my ($id, $name) = each(%stations)) {
-    $table->add($name, $id);
-  }
-
-  print $table->title;
-  print $table->rule("-");
-  print $table->body;
-} else {
-  print "keine Stationen gefunden\n";
+sub show_help {
+  pod2usage(verbose => 1);
 }
+
+sub find_stations {
+  my $query = $_[0];
+
+  my %stations = find_station($query);
+
+  if (scalar(keys %stations) > 0) {
+    my $table = Text::Table->new("Station", "ID");
+
+    while (my ($id, $name) = each(%stations)) {
+      $table->add($name, $id);
+    }
+
+    print $table->title;
+    print $table->rule("-");
+    print $table->body;
+  } else {
+    print "keine Stationen gefunden\n";
+  }
+}
+
+GetOptions("<>" => \&find_stations,
+           "help" => \&show_help);
+
+=pod
+
+Sucht die ID einer Haltestellt
+
+=head1 SYNOPSIS
+
+efa-station [NAME]
+
+=head1 ARGUMENTS
+
+=over 8
+
+=item I<NAME>
+
+Name der zu suchenden Haltestelle
+
+=back
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--help>
+
+Zeigt diese Hilfe
+
+=back
+
+=cut

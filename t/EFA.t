@@ -57,10 +57,10 @@ subtest "Stationen könne gesucht werden" => sub {
   my %stations = stations_from_xml($xml);
 
   is(scalar(keys %stations), 4, "4 Stationen gefunden");
-  ok($stations{25000011} =~ /^Kr.pcke$/, "Kröpcke");
-  ok($stations{25000001} =~ /^Kr.pcke\/Theaterstra.e$/, "Kröpcke/Theaterstraße");
-  ok($stations{839} =~ /^Kr.pckepassage$/, "Kröpckepassage");
-  ok($stations{1000002256} =~ /^Kr.pcke$/, "Kröpcke");
+  ok($stations{25000011} =~ /^Hannover, Kr.pcke$/, "Kröpcke");
+  ok($stations{25000001} =~ /^Hannover, Kr.pcke\/Theaterstra.e$/, "Kröpcke/Theaterstraße");
+  ok($stations{839} =~ /^Hannover, Kr.pckepassage$/, "Kröpckepassage");
+  ok($stations{1000002256} =~ /^Hannover, Kr.pcke$/, "Kröpcke");
 };
 
 done_testing();
