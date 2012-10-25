@@ -13,6 +13,7 @@ binmode(STDOUT, ":utf8");
 
 our $num = 10;
 our $time = DateTime->now(time_zone => "local");
+our @departures = ();
 
 # Setzt das Datum für die Abfrage
 sub set_date {
@@ -39,29 +40,40 @@ sub show_help {
 
 # Zeigt die Abfahren an
 sub show_departures {
-  my @departures = get_departures($_[0],
-                                  time => $time,
-                                  num => $num);
-
-  if (scalar(@departures) > 0) {
-    my $table = Text::Table->new("Minuten", "Haltestelle", "Typ", "Linie", "Ziel");
-
-    for my $line (@departures) {
-      $table->add($line->get_wait_str(),
-		  $line->get_station(),
-		  $line->get_type(),
-                  $line->get_line(),
-                  $line->get_destination());
-    }
-
-    print $table->title;
-    print $table->rule("-");
-    print $table->body;
-  } else {
-    print "Keine Abfahrten gefunden\n";
-  }
+  push @departures, get_departures($_[0],
+                                   time => $time,
+                                   num => $num);
 }
 
+sub main {
+  # Optionen verabeiten
+  GetOptions("<>" => \&show_departures,
+             "num|n=i" => \$num,
+             "date|d=s" => \&set_date,
+             "time|t=s" => \&set_time,
+             "help" => \&show_help);
+
+
+  # Abfahrten sortieren
+  my @d = sort {$a->get_time <=> $b->get_time} @departures;
+
+  # maximal $num-viele Abfahrten ausgeben
+  my $table = Text::Table->new("Minuten", "Haltestelle", "Typ", "Linie", "Ziel");
+
+  for my $line (@d[0..$num-1]) {
+    $table->add($line->get_wait_str(),
+                $line->get_station(),
+                $line->get_type(),
+                $line->get_line(),
+                $line->get_destination());
+  }
+
+  print $table->title;
+  print $table->rule("-");
+  print $table->body;
+}
+
+main();
 
 =pod
 
@@ -79,19 +91,10 @@ efa-deparures [OPTIONS] STATIONS-ID
 
 =item I<STATIONS-ID>
 
-ID der Station für die der die nächsten Abfahrten angezeigt werden sollen
+ID der Station für die der die nächsten Abfahrten angezeigt werden sollen. Hier
+kann auch eine Liste für mehrere Haltestellen angegeben werden.
 
 =back
-
-=cut
-
-GetOptions("<>" => \&show_departures,
-           "num|n=i" => \$num,
-           "date|d=s" => \&set_date,
-           "time|t=s" => \&set_time,
-           "help" => \&show_help);
-
-=pod
 
 =head1 OPTIONS
 
