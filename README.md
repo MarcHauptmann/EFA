@@ -13,7 +13,7 @@ Ein paar Beispiele
 
 ### Station suchen
 
-    $ efa-stations Kröpcke
+    $ efa-station Kröpcke
 	Station               ID        
 	--------------------------------
 	Kröpcke               1000002256

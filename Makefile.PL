@@ -12,5 +12,5 @@ WriteMakefile(
                             DateTime => 0,
                             DBI => 0
                            },
-              EXE_FILES => [ qw(bin/efa-departures) ]
+              EXE_FILES => [ qw(bin/efa-departures bin/efa-station) ]
              );
