@@ -10,7 +10,10 @@ WriteMakefile(
                             LWP::UserAgent => 0,
                             Moose => 0,
                             DateTime => 0,
-                            DBI => 0
+                            DBI => 0,
+                            Getopt::Long => 0,
+                            Pod::Usage => 0,
+                            Text::Table => 0
                            },
               EXE_FILES => [ qw(bin/efa-departures bin/efa-station) ]
              );

@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 
-use utf8;
-use strict;
 use EFA;
 use POSIX;
 use DateTime;
 use Text::Table;
 use Getopt::Long;
 use Pod::Usage;
+use utf8;
+use strict;
 
 binmode(STDOUT, ":utf8");
 

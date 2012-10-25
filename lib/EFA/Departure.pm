@@ -1,7 +1,6 @@
 package EFA::Departure;
 
 use Moose;
-use strict;
 use DateTime;
 use strict;
 use warnings;
