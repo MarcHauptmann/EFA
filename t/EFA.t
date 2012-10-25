@@ -40,13 +40,15 @@ subtest "Departures können aus XML erzeugt werden" => sub {
   is($departures[0]->get_line(), 2, "erste Linie ist 2");
   is($departures[0]->get_destination(), "Rethen", "erste Linie fährt nach Rethen");
   is($departures[0]->get_time(), $time1, "erste Abfahrt ist um 20:48 am 20.10.2012");
-  is($departures[0]->get_type(), "Bahn", "erste Abhfahrt ist Stadtbahn");
+  is($departures[0]->get_type(), "Stadtbahn", "erste Abhfahrt ist Stadtbahn");
+  is($departures[0]->get_station(), "Vahrenwalder Platz", "erste Station ist Vahrenwalder Platz");
 
   # letzte Abfahrt
   is($departures[4]->get_line(), 1, "letzte Linie ist 1");
   is($departures[4]->get_destination(), "Laatzen", "letzte Linie fährt nach Laatzen");
   is($departures[4]->get_time(), $time2, "letzte Abfahrt ist um 20:55 am 20.10.2012");
-  is($departures[4]->get_type(), "Bahn", "letzte Abhfahrt ist Stadtbahn");
+  is($departures[4]->get_type(), "Stadtbahn", "letzte Abhfahrt ist Stadtbahn");
+  is($departures[4]->get_station(), "Vahrenwalder Platz", "letzte Station ist Vahrenwalder Platz");
 };
 
 subtest "Stationen könne gesucht werden" => sub {

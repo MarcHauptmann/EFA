@@ -93,6 +93,7 @@ sub departures_from_xml {
 
     $departure->set_line(get_value("itdServingLine/\@symbol", $node));
     $departure->set_destination(get_value("itdServingLine/\@direction", $node));
+    $departure->set_station(get_value("\@nameWO", $node));
     $departure->set_time($time);
 
     push @result, $departure;

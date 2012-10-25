@@ -21,10 +21,15 @@ has "line" => (isa => "Int",
                reader => "get_line",
                writer => "set_line");
 
+has "station" => (isa => "Str",
+                  is => "rw",
+                  reader => "get_station",
+                  writer => "set_station");
+
 has "id" => (isa => "Int",
-	     is => "rw",
-	     reader => "get_id",
-	     writer => "set_id");
+             is => "rw",
+             reader => "get_id",
+             writer => "set_id");
 
 sub get_type {
   my $self = shift;
@@ -32,7 +37,7 @@ sub get_type {
   if ($self->get_line() >= 100) {
     return "Bus";
   } else {
-    return "Bahn";
+    return "Stadtbahn";
   }
 }
 

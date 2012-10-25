@@ -14,11 +14,11 @@ subtest "Linie 100 ist 'Bus'" => sub {
   is($departure->get_type(), "Bus", "Linie 100 ist Bus");
 };
 
-subtest "Linie 1 ist 'Bahn'" => sub {
+subtest "Linie 1 ist 'Stadtbahn'" => sub {
   my $departure = EFA::Departure->new();
   $departure->set_line(1);
 
-  is($departure->get_type(), "Bahn", "Linie 1 ist Bahn");
+  is($departure->get_type(), "Stadtbahn", "Linie 1 ist Stadtbahn");
 };
 
 subtest "Abfahrzeit kann berechnet werden" => sub {

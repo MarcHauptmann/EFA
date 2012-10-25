@@ -26,10 +26,10 @@ Ein paar Beispiele
 Hat man mittels **efa-stations** die ID einer Station gefunden, so können die nächsten Abfahrten angezeigt werden.
 
 	$ efa-departures -n 5 25000011
-	Minuten Linie Ziel                        
-	------------------------------------------
-	0         5   Hannover Stöcken            
-	0         2   Hannover Alte Heide         
-	0         7   Hannover Schierholzstraße   
-	0       100   Hannover August-Holweg-Platz
-	1         5   Anderten
+	Minuten Haltestelle Typ       Linie Ziel                     
+	-------------------------------------------------------------
+	0       Kröpcke     Stadtbahn 5     Anderten                 
+	0       Kröpcke     Stadtbahn 2     Rethen                   
+	0       Kröpcke     Stadtbahn 7     Hannover Wettbergen      
+	1       Kröpcke     Stadtbahn 6     Hannover Nordhafen       
+	1       Kröpcke     Stadtbahn 8     Hannover Hauptbahnhof (U)

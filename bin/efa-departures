@@ -33,32 +33,34 @@ sub set_time {
 }
 
 # Hilfe anzeigen und beenden
-sub print_help {
+sub show_help {
   pod2usage(verbose => 1);
 }
 
-  # Zeigt die Abfahren an
-  sub show_departures {
-    my @departures = get_departures($_[0],
-                                    time => $time,
-                                    num => $num);
+# Zeigt die Abfahren an
+sub show_departures {
+  my @departures = get_departures($_[0],
+                                  time => $time,
+                                  num => $num);
 
-    if (scalar(@departures) > 0) {
-      my $table = Text::Table->new("Minuten", "Linie", "Ziel");
+  if (scalar(@departures) > 0) {
+    my $table = Text::Table->new("Minuten", "Haltestelle", "Typ", "Linie", "Ziel");
 
-      for my $line (@departures) {
-        $table->add($line->get_wait_str(),
-                    $line->get_line(),
-                    $line->get_destination());
-      }
-
-      print $table->title;
-      print $table->rule("-");
-      print $table->body;
-    } else {
-      print "Keine Abfahrten gefunden\n";
+    for my $line (@departures) {
+      $table->add($line->get_wait_str(),
+		  $line->get_station(),
+		  $line->get_type(),
+                  $line->get_line(),
+                  $line->get_destination());
     }
+
+    print $table->title;
+    print $table->rule("-");
+    print $table->body;
+  } else {
+    print "Keine Abfahrten gefunden\n";
   }
+}
 
 
 =pod
@@ -87,7 +89,7 @@ GetOptions("<>" => \&show_departures,
            "num|n=i" => \$num,
            "date|d=s" => \&set_date,
            "time|t=s" => \&set_time,
-           "help" => \&print_help);
+           "help" => \&show_help);
 
 =pod
 
