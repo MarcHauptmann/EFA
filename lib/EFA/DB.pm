@@ -1,7 +1,8 @@
-package EFA::DepartureDao;
+package EFA::DB;
 
 use Exporter;
 use EFA::Departure;
+use EFA::Station;
 use DBI;
 use DateTime;
 
@@ -12,7 +13,10 @@ use DateTime;
               store_departure
               load_departure_by_id
               close_departure_dao
-              departure_is_persistent);
+              departure_is_persistent
+              store_station
+              load_station_by_id
+              load_all_stations);
 
 our $connection;
 
@@ -28,10 +32,19 @@ sub close_departure_dao {
 
 # initialisiert das Datenbank-Schema
 sub reset_departure_schema {
-  $connection->do("DROP TABLE IF EXISTS departures;");
-  $connection->do("CREATE TABLE departures (id INTEGER PRIMARY KEY ASC, line INTEGER, time INTEGER, destination CHAR(100));");
+  my $script = <<EOF;
+-- alte Tabellen löschen
+DROP TABLE IF EXISTS departures;
+DROP TABLE IF EXISTS stations;
 
-  $connection->do($script);
+-- neue Tabellen erstellen
+CREATE TABLE departures (id INTEGER PRIMARY KEY ASC, line INTEGER, time INTEGER, destination CHAR(100));
+CREATE TABLE stations (id INTEGER PRIMARY KEY, name CHAR(100));
+EOF
+
+  foreach my $line (split /\n/, $script) {
+    $connection->do($line);
+  }
 }
 
 # Zäht die Departures in der Datenbank
@@ -99,11 +112,43 @@ EOF
 
   my $row_ref = $connection->selectrow_hashref($query);
 
-  if($$row_ref{"num"} > 0) {
+  if ($$row_ref{"num"} > 0) {
     return 1;
   } else {
     return 0;
   }
+}
+
+######################################################################
+
+# speichert eine Station
+sub store_station {
+  my $station = ${$_[0]};
+  my $id = $station->get_id();
+  my $name = $station->get_name();
+
+  $connection->do("INSERT INTO stations (id, name) VALUES ($id, '$name');");
+}
+
+# lädt eine Station anhand der ID
+sub load_station_by_id {
+  my $id = $_[0];
+
+  my $row_ref = $connection->selectrow_hashref("SELECT * FROM stations WHERE id=$id");
+
+  return EFA::Station->new(id => $id, name => $row_ref->{"name"});
+}
+
+sub load_all_stations {
+  my @stations = ();
+
+  my $row_ref = $connection->selectall_arrayref("SELECT * FROM stations", {Slice => {}});
+
+  foreach my $row (@$row_ref) {
+    push @stations, EFA::Station->new(id => $row->{"id"}, name => $row->{"name"});
+  }
+
+  return @stations;
 }
 
 1;

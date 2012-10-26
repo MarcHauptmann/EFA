@@ -54,13 +54,27 @@ subtest "Departures können aus XML erzeugt werden" => sub {
 subtest "Stationen könne gesucht werden" => sub {
   my $xml = read_test_xml("t/stations.xml");
 
-  my %stations = stations_from_xml($xml);
+  my @stations = stations_from_xml($xml);
 
-  is(scalar(keys %stations), 4, "4 Stationen gefunden");
-  ok($stations{25000011} =~ /^Hannover, Kr.pcke$/, "Kröpcke");
-  ok($stations{25000001} =~ /^Hannover, Kr.pcke\/Theaterstra.e$/, "Kröpcke/Theaterstraße");
-  ok($stations{839} =~ /^Hannover, Kr.pckepassage$/, "Kröpckepassage");
-  ok($stations{1000002256} =~ /^Hannover, Kr.pcke$/, "Kröpcke");
+  is(scalar(@stations), 4, "4 Stationen gefunden");
+  ok($stations[0]->get_name() =~ /^Hannover, Kr.pcke$/, "Kröpcke");
+  is($stations[0]->get_id(), 25000011, "ID von Kröpcke stimmt");
+  ok($stations[1]->get_name =~ /^Hannover, Kr.pcke\/Theaterstra.e$/, "Kröpcke/Theaterstraße");
+  is($stations[1]->get_id, 25000001, "ID von Theaterstraße passt");
+  ok($stations[2]->get_name =~ /^Hannover, Kr.pckepassage$/, "Kröpckepassage");
+  is($stations[2]->get_id, 839, "ID von Kröpckepassage passt");
+  ok($stations[3]->get_name =~ /^Hannover, Kr.pcke$/, "Kröpcke");
+  is($stations[3]->get_id, 1000002256, "letzte ID passt");
+};
+
+subtest "Stationsname kann gelesen werden" => sub {
+  my $xml = read_test_xml("t/stations_by_id.xml");
+
+  my @stations = stations_from_xml($xml);
+
+  is(scalar(@stations), 1, "eine Station gefunden");
+  is($stations[0]->get_name(), "Vahrenwalder Platz", "Station ist Vahrenwalder Platz");
+  is($stations[0]->get_id(), 25000341, "ID stimmt");
 };
 
 done_testing();

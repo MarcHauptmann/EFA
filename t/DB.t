@@ -2,8 +2,9 @@
 
 use base qw(Test::Class);
 use Test::More;
-use EFA::DepartureDao;
+use EFA::DB;
 use EFA::Departure;
+use EFA::Station;
 use DateTime;
 use strict;
 use warnings;
@@ -115,6 +116,35 @@ sub test_departure_is_persistent : Tests {
   is($result_persistent, 1, "Departure ist in Datenbank vorhanden");
 }
 ;
+
+# Speichern einer Station funktioniert
+sub test_store_station : Tests {
+  my $station = EFA::Station->new(id => 1, name => "Test");
+
+  store_station(\$station);
+
+  my $persistent_station = load_station_by_id(1);
+
+  is_deeply($persistent_station, $station);
+}
+
+# Alle gespeicherten Station können geladen werden
+sub test_load_all_stations : Tests {
+  my $station1 = EFA::Station->new(id => 10, name => "Test1");
+  my $station2 = EFA::Station->new(id => 21, name => "Test2");
+  my $station3 = EFA::Station->new(id => 1123, name => "Test3");
+
+  store_station(\$station1);
+  store_station(\$station2);
+  store_station(\$station3);
+
+  my @stations = load_all_stations();
+
+  is(scalar(@stations), 3, "3 Stationen");
+  is_deeply($stations[0], $station1, "Station 1 passt");
+  is_deeply($stations[1], $station2, "Station 2 passt");
+  is_deeply($stations[2], $station3, "Station 3 passt");
+}
 
 Test::Class->runtests;
 

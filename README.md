@@ -13,7 +13,7 @@ Ein paar Beispiele
 
 ### Station suchen
 
-    $ efa-station Kröpcke
+    $ efa-station search Kröpcke
 	Station               ID        
 	--------------------------------
 	Kröpcke               1000002256
@@ -23,7 +23,7 @@ Ein paar Beispiele
 
 ### Abfahrten einer Station anzeigen
 
-Hat man mittels **efa-stations** die ID einer Station gefunden, so können die nächsten Abfahrten angezeigt werden.
+Hat man mittels **efa-station** die ID einer Station gefunden, so können die nächsten Abfahrten angezeigt werden.
 
 	$ efa-departures -n 5 25000011
 	Minuten Haltestelle Typ       Linie Ziel                     

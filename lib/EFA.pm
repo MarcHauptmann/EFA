@@ -9,6 +9,7 @@ $VERSION = "0.0.1";
 
 use EFA::Departure;
 use EFA::Utils;
+use EFA::Station;
 use XML::XPath;
 use LWP::UserAgent;
 use DateTime;
@@ -115,7 +116,7 @@ sub departures_from_xml {
 sub stations_from_xml {
   my $xml = $_[0];
 
-  my %result = ();
+  my @result = ();
 
   my $xp = XML::XPath->new(xml => $xml);
 
@@ -123,10 +124,15 @@ sub stations_from_xml {
     my $name = get_value("text()", $node);
     my $id = get_value("\@id", $node);
 
-    $result{$id} = $name;
+    # manchmal ist die ID auch unter 'stopID' angegeben
+    if (!$id) {
+      $id = get_value("\@stopID", $node);
+    }
+
+    push @result, EFA::Station->new(id => $id, name => $name);
   }
 
-  return %result;
+  return @result;
 }
 
 1;

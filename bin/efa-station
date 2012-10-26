@@ -4,51 +4,96 @@ use EFA;
 use Text::Table;
 use Getopt::Long;
 use Pod::Usage;
+use EFA::DB;
 
 binmode(STDOUT, ":utf8");
 
 sub show_help {
-  pod2usage(verbose => 1);
+  pod2usage(verbose => 99,
+            sections => [ qw(SYNOPSIS COMMANDS OPTIONS) ]);
 }
 
 sub find_stations {
   my $query = $_[0];
 
-  my %stations = find_station($query);
+  my @stations = find_station($query);
 
-  if (scalar(keys %stations) > 0) {
-    my $table = Text::Table->new("Station", "ID");
-
-    while (my ($id, $name) = each(%stations)) {
-      $table->add($name, $id);
-    }
-
-    print $table->title;
-    print $table->rule("-");
-    print $table->body;
+  if (scalar(@stations) > 0) {
+    printStations(@stations);
   } else {
     print "keine Stationen gefunden\n";
   }
 }
 
-GetOptions("<>" => \&find_stations,
-           "help" => \&show_help);
+sub add_station {
+  my $id = $_[0];
 
-=pod
+  my @stations = find_station($id);
 
-Sucht die ID einer Haltestellt
+  my $station = $stations[0];
+
+  if ($station) {
+    print $station->get_name.": ".$station->get_id."\n";
+
+    store_station(\$station);
+  }
+}
+
+sub list_stations {
+  printStations(load_all_stations());
+}
+
+sub printStations {
+  my $table = Text::Table->new("Station", "ID");
+
+  foreach $station (@_) {
+    $table->add($station->get_name, $station->get_id);
+  }
+
+  print $table->title;
+  print $table->rule("-");
+  print $table->body;
+}
+
+sub main {
+  init_departure_dao();
+
+  my $command = shift @ARGV;
+
+  if ($command eq "search") {
+    GetOptions("<>" => \&find_stations,
+               "help" => \&show_help);
+  } elsif ($command eq "add") {
+    GetOptions("<>" => \&add_station,
+               "help" => \&show_help);
+  } elsif ($command eq "list") {
+    list_stations();
+  } else {
+    print "unerkanntes Kommando: $command\n";
+
+    show_help();
+  }
+
+  close_departure_dao();
+}
+
+main();
+
+__END__
 
 =head1 SYNOPSIS
 
-efa-station [NAME]
+I<efa-station search> <name>
 
-=head1 ARGUMENTS
+Verwaltet Haltestellen
+
+=head1 COMMANDS
 
 =over 8
 
-=item I<NAME>
+=item I<search>
 
-Name der zu suchenden Haltestelle
+Sucht nach der Station mit dem Namen <name>
 
 =back
 
@@ -62,4 +107,4 @@ Zeigt diese Hilfe
 
 =back
 
-=cut
+
