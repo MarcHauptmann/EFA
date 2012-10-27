@@ -11,14 +11,13 @@ use warnings;
 
 # Setzt die Datenbank auf
 sub setup_db : Test(setup) {
-  init_departure_dao();
-  reset_departure_schema();
+  init_db( url => "dbi:SQLite:dbname=:memory:");
+  reset_db_schema();
 }
 
 # räumt nach einem Test wieder auf
 sub tear_down_db : Test(teardown) {
-  # reset_departure_schema();
-  close_departure_dao();
+  close_db();
 }
 
 # Anzahl Deparutes ist per Default 0

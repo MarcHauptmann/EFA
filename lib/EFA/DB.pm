@@ -7,12 +7,12 @@ use DBI;
 use DateTime;
 
 @ISA = qw(Exporter);
-@EXPORT  = qw(init_departure_dao
-              reset_departure_schema
+@EXPORT  = qw(init_db
+              reset_db_schema
               get_departure_count
+              close_db
               store_departure
               load_departure_by_id
-              close_departure_dao
               departure_is_persistent
               store_station
               load_station_by_id
@@ -22,17 +22,21 @@ use DateTime;
 our $connection;
 
 # initialisiert die Verbindung
-sub init_departure_dao {
-  $connection = DBI->connect("dbi:SQLite:/tmp/efa.db", "", "");
+sub init_db {
+  my %parameters = @_;
+
+  my $url = $parameters{url} || "dbi:SQLite:/tmp/efa.db";
+
+  $connection = DBI->connect($url, "", "");
 }
 
 # Schließt die Verbindung wieder
-sub close_departure_dao {
+sub close_db {
   $connection->disconnect();
 }
 
 # initialisiert das Datenbank-Schema
-sub reset_departure_schema {
+sub reset_db_schema {
   my $script = <<EOF;
 -- alte Tabellen löschen
 DROP TABLE IF EXISTS departures;

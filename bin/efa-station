@@ -62,7 +62,7 @@ sub printStations {
 }
 
 sub main {
-  init_departure_dao();
+  init_db();
 
   my $command = shift @ARGV;
 
@@ -83,7 +83,7 @@ sub main {
     show_help();
   }
 
-  close_departure_dao();
+  close_db();
 }
 
 main();
