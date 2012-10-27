@@ -20,6 +20,8 @@ sub read_test_xml {
     $text .= $_;
   }
 
+  close XML;
+
   return $text;
 }
 
