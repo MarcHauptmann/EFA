@@ -146,5 +146,16 @@ sub test_load_all_stations : Tests {
   is_deeply($stations[2], $station3, "Station 3 passt");
 }
 
+# eine Station kann gelöscht werden
+sub test_delete_station : Tests {
+  my $station = EFA::Station->new(id => 10, name => "Test1");
+
+  store_station(\$station);
+
+  delete_station($station->get_id());
+
+  is(load_station_by_id($station->get_id), undef, "Station kann nicht mehr geladen werden");
+}
+
 Test::Class->runtests;
 

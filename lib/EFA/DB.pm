@@ -16,7 +16,8 @@ use DateTime;
               departure_is_persistent
               store_station
               load_station_by_id
-              load_all_stations);
+              load_all_stations
+              delete_station);
 
 our $connection;
 
@@ -136,7 +137,11 @@ sub load_station_by_id {
 
   my $row_ref = $connection->selectrow_hashref("SELECT * FROM stations WHERE id=$id");
 
-  return EFA::Station->new(id => $id, name => $row_ref->{"name"});
+  if (defined $row_ref) {
+    return EFA::Station->new(id => $id, name => $row_ref->{"name"});
+  } else {
+    return undef;
+  }
 }
 
 sub load_all_stations {
@@ -149,6 +154,12 @@ sub load_all_stations {
   }
 
   return @stations;
+}
+
+sub delete_station {
+  my $id = $_[0];
+
+  $connection->do("DELETE FROM stations WHERE id=$id;");
 }
 
 1;

@@ -43,6 +43,12 @@ sub list_stations {
   printStations(load_all_stations());
 }
 
+sub remove_station {
+  my $id = $_[0];
+
+  delete_station($id);
+}
+
 sub printStations {
   my $table = Text::Table->new("Station", "ID");
 
@@ -66,6 +72,9 @@ sub main {
   } elsif ($command eq "add") {
     GetOptions("<>" => \&add_station,
                "help" => \&show_help);
+  } elsif ($command eq "rm") {
+    GetOptions("<>" => \&remove_station,
+               "help" => \&show_help);
   } elsif ($command eq "list") {
     list_stations();
   } else {
@@ -81,19 +90,45 @@ main();
 
 __END__
 
+=encoding utf8
+
+=head1 NAME
+
+B<efa-station> - Verwaltet Haltestellen
+
 =head1 SYNOPSIS
 
-I<efa-station search> <name>
+=over 8
 
-Verwaltet Haltestellen
+=item I<efa-station add> <id>
+
+=item I<efa-station list>
+
+=item I<efa-station rm> <id>
+
+=item I<efa-station search> <name>
+
+=back
 
 =head1 COMMANDS
 
 =over 8
 
-=item I<search>
+=item I<add> <id>
 
-Sucht nach der Station mit dem Namen <name>
+Fügt eine Haltestelle mit der ID <id> zur Datenbank hinzu
+
+=item I<list>
+
+Listet alle Haltestellen in der Datenbank auf
+
+=item I<rm> <id>
+
+Löscht eine Haltestelle aus der lokalen Datenbank
+
+=item I<search> <name>
+
+Sucht in der Datenbank von L<efa.de|http://efa.de> nach der Station mit dem Namen <name>
 
 =back
 
