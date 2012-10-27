@@ -5,6 +5,7 @@ use Text::Table;
 use Getopt::Long;
 use Pod::Usage;
 use EFA::DB;
+use utf8;
 
 binmode(STDOUT, ":utf8");
 
@@ -33,7 +34,9 @@ sub add_station {
   my $station = $stations[0];
 
   if ($station) {
-    print $station->get_name.": ".$station->get_id."\n";
+    my $name = $station->get_name;
+    my $id = $station->get_id;
+    print "$name: $id\n";
 
     store_station(\$station);
   }

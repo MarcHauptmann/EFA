@@ -6,8 +6,9 @@ use DateTime;
 use Text::Table;
 use Getopt::Long;
 use Pod::Usage;
-use utf8;
 use strict;
+use warnings;
+use utf8;
 
 binmode(STDOUT, ":utf8");
 

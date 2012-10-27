@@ -3,6 +3,9 @@
 use Test::More;
 use strict;
 use warnings;
+use utf8;
+
+binmode(STDOUT, ":utf8");
 
 BEGIN { use_ok( 'EFA' ); }
 
@@ -51,19 +54,19 @@ subtest "Departures können aus XML erzeugt werden" => sub {
   is($departures[4]->get_station(), "Vahrenwalder Platz", "letzte Station ist Vahrenwalder Platz");
 };
 
-subtest "Stationen könne gesucht werden" => sub {
+subtest "Stationen können gesucht werden" => sub {
   my $xml = read_test_xml("t/stations.xml");
 
   my @stations = stations_from_xml($xml);
 
   is(scalar(@stations), 4, "4 Stationen gefunden");
-  ok($stations[0]->get_name() =~ /^Hannover, Kr.pcke$/, "Kröpcke");
+  is($stations[0]->get_name(), "Hannover, Kröpcke", "Kröpcke");
   is($stations[0]->get_id(), 25000011, "ID von Kröpcke stimmt");
-  ok($stations[1]->get_name =~ /^Hannover, Kr.pcke\/Theaterstra.e$/, "Kröpcke/Theaterstraße");
+  is($stations[1]->get_name, "Hannover, Kröpcke\/Theaterstraße", "Kröpcke/Theaterstraße");
   is($stations[1]->get_id, 25000001, "ID von Theaterstraße passt");
-  ok($stations[2]->get_name =~ /^Hannover, Kr.pckepassage$/, "Kröpckepassage");
+  is($stations[2]->get_name, "Hannover, Kröpckepassage", "Kröpckepassage");
   is($stations[2]->get_id, 839, "ID von Kröpckepassage passt");
-  ok($stations[3]->get_name =~ /^Hannover, Kr.pcke$/, "Kröpcke");
+  is($stations[3]->get_name, "Hannover, Kröpcke", "Kröpcke");
   is($stations[3]->get_id, 1000002256, "letzte ID passt");
 };
 

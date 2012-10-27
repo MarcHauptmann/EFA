@@ -27,7 +27,10 @@ sub init_db {
 
   my $url = $parameters{url} || "dbi:SQLite:/tmp/efa.db";
 
-  $connection = DBI->connect($url, "", "");
+  $connection = DBI->connect($url, "", "",
+                             {
+                              sqlite_unicode => 1
+                             });
 }
 
 # Schließt die Verbindung wieder
