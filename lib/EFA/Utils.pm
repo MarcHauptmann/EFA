@@ -3,12 +3,13 @@ package EFA::Utils;
 require Exporter;
 
 @ISA = qw(Exporter);
-@EXPORT = qw(parse_time);
+@EXPORT = qw(parse_time min);
 
 use DateTime;
 use strict;
 use warnings;
 
+# parst eine Uhrzeit
 sub parse_time {
   my $time_str = $_[0];
   my $now = DateTime->now(time_zone => "local");
@@ -21,7 +22,7 @@ sub parse_time {
     my $min = $5;
 
     $now->set(day => $day, month => $mon, year => $year, hour => $hour, minute => $min);
-  } elsif($time_str =~ /^(\d\d):(\d\d)$/) {
+  } elsif ($time_str =~ /^(\d\d):(\d\d)$/) {
     my $hour = $1;
     my $min = $2;
 
@@ -29,6 +30,21 @@ sub parse_time {
   } else {
     die "unbekanntes Format";
   }
-  
+
   return $now;
+}
+
+# Berechnet das Minimum
+sub min {
+  my @list = @_;
+
+  my $min = shift @list;
+
+  for my $value (@list) {
+    if($min > $value) {
+      $min = $value;
+    }
+  }
+
+  return $min;
 }

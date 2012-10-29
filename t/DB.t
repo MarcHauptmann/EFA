@@ -125,7 +125,7 @@ sub test_departure_is_persistent : Tests {
 ;
 
 # Abfahrten können anhand der Zeit gesucht werden
-sub test_search_departures_by_time : Tests {
+sub test_load_departures_by_time : Tests {
   my $departure1 = make_departure(minute_offset => -10);
   my $departure2 = make_departure(minute_offset => 5);
   my $departure3 = make_departure(minute_offset => 65);
@@ -139,6 +139,21 @@ sub test_search_departures_by_time : Tests {
   is(scalar(@departures), 2, "zwei Abfahrten");
   is_deeply($departures[0], $departure2, "erste Abfahrt stimmt");
   is_deeply($departures[1], $departure3, "zweite Abfahrt stimmt");
+}
+
+# Anzahl der zu ladenen Departures können beschränkt werden
+sub test_load_departures_limit : Tests {
+  my $departure1 = make_departure(minute_offset => -10);
+  my $departure2 = make_departure(minute_offset => 5);
+  my $departure3 = make_departure(minute_offset => 65);
+
+  store_departure(\$departure1);
+  store_departure(\$departure2);
+  store_departure(\$departure3);
+
+  my @departures = load_departures(num => 2);
+
+  is(scalar(@departures), 2, "zwei Departures werden zurückgegeben");
 }
 
 # Testet das Löschen aller Departures

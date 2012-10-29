@@ -46,7 +46,8 @@ sub get_wait_str {
 
   my $diff = $self->get_time()-$now;
 
-  my $hours = $diff->hours;
+  my $days = $diff->days;
+  my $hours = $diff->hours + $days * 24;
   my $minutes = $diff->minutes;
 
   if ($hours > 0) {

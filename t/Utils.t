@@ -36,4 +36,14 @@ subtest "Zeit mit Datum kann geparst werden" => sub {
   is($result->year, 2012, "Jahr ist 2012");
 };
 
+subtest "Minimum mehrerer Werte kann berechnet werden" => sub {
+  is(min(), undef, "Minimum von leerer Liste ist undef");
+  is(min(1), 1, "min(1) = 1");
+  is(min(3, -5, 2), -5, "min(3, -5, 2) = -5");
+
+  my @list = (3, 2, 1);
+
+  is(min(@list), 1, "Minimum von Listen kann berechnet werden");
+};
+
 done_testing();

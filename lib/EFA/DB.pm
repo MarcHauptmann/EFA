@@ -114,11 +114,23 @@ sub load_departures {
   my %parameters = @_;
 
   my $after = $parameters{after};
+  my $limit = $parameters{num};
+
+
+  my $query = "SELECT * FROM departures";
+
+  if (defined $after) {
+    $query .= sprintf " WHERE time >= %d", $after->epoch;
+  }
+
+  if (defined $limit) {
+    $query .= sprintf " LIMIT %d", $limit;
+  }
+
+  $query .= ";";
+  my $row_ref = $connection->selectall_arrayref($query, { Slice => {} });
 
   my @departures = ();
-
-  my $query = sprintf "SELECT * FROM departures WHERE time >= %d", $after->epoch;
-  my $row_ref = $connection->selectall_arrayref($query, { Slice => {} });
 
   foreach my $row (@$row_ref) {
     my $time = DateTime->from_epoch(epoch => $row->{time}, time_zone => "local");
