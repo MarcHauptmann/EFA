@@ -6,6 +6,7 @@ Tools zur Verarbeitung von Fahrplandaten von [efa.de](http://efa.de). Im Moment 
 
 * **efa-departures** zur Anzeige der nächsten Abfahrten an einer Haltestelle
 * **efa-station** zur Suche von Haltestellen
+* **efa-setup** zum Aufsetzen der lokalen Datenbank
 
 ## Verwendung
 
@@ -25,7 +26,7 @@ Ein paar Beispiele
 
 Hat man mittels **efa-station** die ID einer Station gefunden, so können die nächsten Abfahrten angezeigt werden.
 
-	$ efa-departures -n 5 25000011
+	$ efa-departures query -n 5 25000011
 	Minuten Haltestelle Typ       Linie Ziel                     
 	-------------------------------------------------------------
 	0       Kröpcke     Stadtbahn 5     Anderten                 
