@@ -95,6 +95,7 @@ sub fetch_departures {
 
   my $num = 0;
 
+  # alle speichern
   foreach my $departure (@departures) {
     if (!departure_is_persistent(\$departure)) {
       store_departure(\$departure);
@@ -156,9 +157,17 @@ B<efa-departures> - Verwaltet die Abfahrten
 
 =head1 COMMANDS
 
+=head2 clear
+
+Löscht alle Abfahrten aus der lokalen Datenbank.
+
 =head2 fetch <id>
 
 Lädt alle Abfahrten und speichert sie in der lokalen Datenbank.
+
+=head2 list
+
+Listet die nächsten Abfahren in der Lokalen Datenbank auf. 
 
 =head2 query [OPTIONS] <id>
 
