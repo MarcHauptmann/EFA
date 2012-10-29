@@ -151,6 +151,12 @@ B<efa-departures> - Verwaltet die Abfahrten
 
 =over 8
 
+=item I<efa-deparures clear>
+
+=item I<efa-deparures fetch> <id>
+
+=item I<efa-deparures list>
+
 =item I<efa-deparures query> [OPTIONS] <id>
 
 =back
@@ -188,7 +194,7 @@ Frage die nächsten I<n> Abfahrten ab
 
 =item B<--date> I<date>, B<-d> I<date>
 
-Setzt das Datum für die Abfrage auf das übergebene I<date>. Beispeil: "14.2.2012".
+Setzt das Datum für die Abfrage auf das übergebene I<date>. Beispiel: "14.2.2012".
 
 =item B<--time> I<time>, B<-t> I<time>
 
