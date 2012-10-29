@@ -81,7 +81,7 @@ sub main {
   } elsif ($command eq "list") {
     list_stations();
   } else {
-    print "unerkanntes Kommando: $command\n";
+    print "unbekanntes Kommando: $command\n";
 
     show_help();
   }

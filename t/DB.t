@@ -6,6 +6,7 @@ use EFA::DB;
 use EFA::Departure;
 use EFA::Station;
 use DateTime;
+use POSIX qw(floor);
 use strict;
 use warnings;
 
@@ -29,15 +30,22 @@ sub test_init : Test {
 ;
 
 # Standard-Departure erstellen
-sub make_default_departure {
+sub make_departure {
+  my %parameters = @_;
+
+  my $minute_offset = $parameters{minute_offset} || 0;
+
+  my $time = DateTime->now(time_zone => "Europe/Berlin");
+  $time->add(minutes => $minute_offset);
+
   return EFA::Departure->new(line => 120,
                              destination => "Test",
-                             time => DateTime->now());
+                             time => $time);
 }
 
 # ID wird beim Speichern gesetzt
 sub test_store : Tests {
-  my $departure = make_default_departure();
+  my $departure = make_departure();
 
   # speichern
   store_departure(\$departure);
@@ -48,7 +56,7 @@ sub test_store : Tests {
 
 # store eines bestehenden Departures ändert ID nicht
 sub test_update_id : Tests {
-  my $departure = make_default_departure();
+  my $departure = make_departure();
 
   # speichern
   store_departure(\$departure);
@@ -65,7 +73,7 @@ sub test_update_id : Tests {
 
 # store eine bestehenden Departures macht Update
 sub test_update_store : Tests {
-  my $departure = make_default_departure();
+  my $departure = make_departure();
 
   # speichern
   store_departure(\$departure);
@@ -83,7 +91,7 @@ sub test_update_store : Tests {
 
 # Departure kann gespeichert und geladen werden
 sub test_store_load : Tests {
-  my $departure = make_default_departure();
+  my $departure = make_departure();
 
   # speichern
   store_departure(\$departure);
@@ -98,8 +106,8 @@ sub test_store_load : Tests {
 
 # Existenz einer vorhandenen Departure kann geprüft werden
 sub test_departure_is_persistent : Tests {
-  my $departure = make_default_departure();
-  my $departure_copy = make_default_departure();
+  my $departure = make_departure();
+  my $departure_copy = make_departure();
 
   # erstes Mal ist nicht persistent
   my $result_not_persistent = departure_is_persistent(\$departure_copy);
@@ -115,6 +123,36 @@ sub test_departure_is_persistent : Tests {
   is($result_persistent, 1, "Departure ist in Datenbank vorhanden");
 }
 ;
+
+# Abfahrten können anhand der Zeit gesucht werden
+sub test_search_departures_by_time : Tests {
+  my $departure1 = make_departure(minute_offset => -10);
+  my $departure2 = make_departure(minute_offset => 5);
+  my $departure3 = make_departure(minute_offset => 65);
+
+  store_departure(\$departure1);
+  store_departure(\$departure2);
+  store_departure(\$departure3);
+
+  my @departures = load_departures(after => DateTime->now());
+
+  is(scalar(@departures), 2, "zwei Abfahrten");
+  is_deeply($departures[0], $departure2, "erste Abfahrt stimmt");
+  is_deeply($departures[1], $departure3, "zweite Abfahrt stimmt");
+}
+
+# Testet das Löschen aller Departures
+sub test_delete_departures : Tests {
+  my $departure1 = make_departure(minute_offset => -10);
+  my $departure2 = make_departure(minute_offset => 5);
+
+  store_departure(\$departure1);
+  store_departure(\$departure2);
+
+  delete_departures();
+
+  is(get_departure_count(), 0, "keine Departures mehr in der Datenbank");
+}
 
 # Speichern einer Station funktioniert
 sub test_store_station : Tests {

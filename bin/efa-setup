@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+use EFA::DB;
+
+use strict;
+use warnings;
+
+init_db();
+reset_db_schema();
+close_db();
+
+print "Lokale Datenbank in ~/.efa aufgesetzt";
+
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+B<efa-setup> - Initialisiert die lokale Datenbank in I<~/.efa>
+
+=head1 SYNOPSIS
+
+=over 8
+
+=item I<efa-setup>
+
+=back

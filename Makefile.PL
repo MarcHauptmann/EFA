@@ -15,5 +15,7 @@ WriteMakefile(
                             Pod::Usage => 0,
                             Text::Table => 0
                            },
-              EXE_FILES => [ qw(bin/efa-departures bin/efa-station) ]
+              EXE_FILES => [ qw(bin/efa-departures
+                                bin/efa-station
+                                bin/efa-setup) ]
              );

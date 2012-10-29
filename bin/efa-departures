@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use EFA;
+use EFA::DB;
 use POSIX;
 use DateTime;
 use Text::Table;
@@ -36,68 +37,139 @@ sub set_time {
 
 # Hilfe anzeigen und beenden
 sub show_help {
-  pod2usage(verbose => 1);
+  pod2usage(verbose => 99,
+            sections => [ qw(SYNOPSIS COMMANDS) ]);
 }
 
 # Zeigt die Abfahren an
-sub show_departures {
+sub add_departures {
   push @departures, get_departures($_[0],
                                    time => $time,
                                    num => $num);
 }
 
-sub main {
-  # Optionen verabeiten
-  GetOptions("<>" => \&show_departures,
-             "num|n=i" => \$num,
-             "date|d=s" => \&set_date,
-             "time|t=s" => \&set_time,
-             "help" => \&show_help);
-
-
+sub show_departures {
   # Abfahrten sortieren
   my @d = sort {$a->get_time <=> $b->get_time} @departures;
 
   # maximal $num-viele Abfahrten ausgeben
   my $table = Text::Table->new("Minuten", "Haltestelle", "Typ", "Linie", "Ziel");
 
-  for my $line (@d[0..$num-1]) {
-    $table->add($line->get_wait_str(),
-                $line->get_station(),
-                $line->get_type(),
-                $line->get_line(),
-                $line->get_destination());
+  my $end = $num - 1;
+
+  if ($end > scalar(@d)) {
+    $end = scalar(@d) - 1;
   }
 
-  print $table->title;
-  print $table->rule("-");
-  print $table->body;
+  if ($end > 0) {
+    for my $line (@d[0..$end]) {
+      $table->add($line->get_wait_str(),
+                  $line->get_station(),
+                  $line->get_type(),
+                  $line->get_line(),
+                  $line->get_destination());
+    }
+
+    print $table->title;
+    print $table->rule("-");
+    print $table->body;
+  } else {
+    print "keine Abfahrten in der Datenbank vorhanden";
+  }
+}
+
+sub query_departures {
+  # Optionen verabeiten
+  GetOptions("<>" => \&add_departures,
+             "num|n=i" => \$num,
+             "date|d=s" => \&set_date,
+             "time|t=s" => \&set_time,
+             "help" => \&show_help);
+
+  show_departures();
+}
+
+sub fetch_departures {
+  GetOptions("<>" => \&add_departures,
+             "help" => \&show_help);
+
+  my $num = 0;
+
+  foreach my $departure (@departures) {
+    if (!departure_is_persistent(\$departure)) {
+      store_departure(\$departure);
+      $num++;
+    }
+  }
+
+  print "$num neue Abfahrten gespeichert\n";
+}
+
+sub list_departures {
+  push @departures, load_departures(after => DateTime->now());
+
+  show_departures();
+}
+
+sub clear_departures {
+  delete_departures();
+}
+
+sub main {
+  init_db();
+
+  my %commands = ( query => \&query_departures,
+                   fetch => \&fetch_departures,
+                   list => \&list_departures,
+                   clear => \&clear_departures);
+
+  my $command = shift @ARGV;
+
+  if (defined $commands{$command}) {
+    &{$commands{$command}}();
+  } else {
+    print "unbekanntes Kommando: $command\n";
+
+    show_help();
+  }
+
+  close_db();
 }
 
 main();
 
-=pod
+__END__
 
 =encoding utf8
 
-Zeigt die nächsten Abfahrten für eine Station an.
+=head1 NAME
+
+B<efa-departures> - Verwaltet die Abfahrten
 
 =head1 SYNOPSIS
 
-efa-deparures [OPTIONS] STATIONS-ID
-
-=head1 ARGUMENTS
-
 =over 8
 
-=item I<STATIONS-ID>
+=item I<efa-deparures query> [OPTIONS] <id>
+
+=back
+
+=head1 COMMANDS
+
+=head2 fetch <id>
+
+Lädt alle Abfahrten und speichert sie in der lokalen Datenbank.
+
+=head2 query [OPTIONS] <id>
 
 ID der Station für die der die nächsten Abfahrten angezeigt werden sollen. Hier
 kann auch eine Liste für mehrere Haltestellen angegeben werden.
 
+=over 8
+
 =back
 
-=head1 OPTIONS
+=head3 Optionen
 
 =over 8
 
@@ -118,6 +190,4 @@ Setzt die Uhrzeit für die Abfrage. Beispiel: "03:14"
 Zeigt diese Hilfe an.
 
 =back
-
-=cut
 

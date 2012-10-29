@@ -17,6 +17,8 @@ use DateTime;
               store_station
               load_station_by_id
               load_all_stations
+              load_departures
+              delete_departures
               delete_station);
 
 our $connection;
@@ -25,7 +27,7 @@ our $connection;
 sub init_db {
   my %parameters = @_;
 
-  my $url = $parameters{url} || "dbi:SQLite:/tmp/efa.db";
+  my $url = $parameters{url} || "dbi:SQLite:dbname=".$ENV{HOME}."/.efa";
 
   $connection = DBI->connect($url, "", "",
                              {
@@ -97,12 +99,42 @@ sub load_departure_by_id {
     die "Fehler";
   }
 
+  my $time = DateTime->from_epoch(epoch => $$row_ref{"time"}, time_zone => "local");
+
   $departure->set_id($$row_ref{"id"});
   $departure->set_line($$row_ref{"line"});
   $departure->set_destination($$row_ref{"destination"});
-  $departure->set_time(DateTime->from_epoch(epoch => $$row_ref{"time"}));
+  $departure->set_time($time);
 
   return $departure;
+}
+
+# Lädt Departures
+sub load_departures {
+  my %parameters = @_;
+
+  my $after = $parameters{after};
+
+  my @departures = ();
+
+  my $query = sprintf "SELECT * FROM departures WHERE time >= %d", $after->epoch;
+  my $row_ref = $connection->selectall_arrayref($query, { Slice => {} });
+
+  foreach my $row (@$row_ref) {
+    my $time = DateTime->from_epoch(epoch => $row->{time}, time_zone => "local");
+
+    push @departures, EFA::Departure->new(id => $row->{id},
+                                          destination => $row->{destination},
+                                          time => $time,
+                                          line => $row->{line});
+  }
+
+  return @departures;
+}
+
+# löscht alle Departures
+sub delete_departures {
+  $connection->do("DELETE FROM departures;");
 }
 
 # Existenz in der Datenbank kann geprüft werden

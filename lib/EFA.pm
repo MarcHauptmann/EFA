@@ -100,7 +100,8 @@ sub departures_from_xml {
                              month => get_value("itdDateTime/itdDate/\@month", $node),
                              day => get_value("itdDateTime/itdDate/\@day", $node),
                              hour => get_value("itdDateTime/itdTime/\@hour", $node),
-                             minute => get_value("itdDateTime/itdTime/\@minute", $node));
+                             minute => get_value("itdDateTime/itdTime/\@minute", $node),
+			     time_zone => "local");
 
     $departure->set_line(get_value("itdServingLine/\@symbol", $node));
     $departure->set_destination(get_value("itdServingLine/\@direction", $node));
