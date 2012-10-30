@@ -125,24 +125,46 @@ Lädt Abfahrten und speichert sie in der lokalen Datenbank.
 
 Fragt I<n> Abfahrten ab.
 
+=item B<--date> I<date>, B<-d> I<date>
+
+Setzt das Datum für die Abfragen auf I<date>
+
+=item B<--time> I<time>, B<-t> I<time>
+
+Setzt die Zeit für die Abfragen auf I<time>
+
 =back
 
 =cut
 sub fetch_departures {
-  my @departures = ();
+  my $time = DateTime->now(time_zone => "local");
   my $num = 10;
+  my @ids = ();
 
   GetOptions("num|n=i" => \$num,
-             "<>" => sub {
-               push @departures, get_departures($_[0],
-                                                time => DateTime->now(time_zone => "local"),
-                                                num => $num);
+             "<>" => sub { push @ids, $_[0] },
+             "date|d=s" => sub {
+               $_[1] =~ /(\d\d?).(\d\d?).(\d\d\d\d)/;
+
+               $time->set(day => $1, month => $2, year => $3);
+             },
+             "time|t=s" => sub {
+               $_[1] =~ /(\d\d?):(\d\d?)/;
+
+               $time->set(hour => $1, minute => $2);
              },
              "help" => \&show_help);
 
+  # Abfahrten laden
+  my @departures = ();
+
+  foreach my $id (@ids) {
+    push @departures, get_departures($id, time => $time, num => $num);
+  }
+
+  # noch nicht bekannte Abfahrten speichern
   my $count = 0;
 
-  # alle speichern
   foreach my $departure (@departures) {
     if (!departure_is_persistent(\$departure)) {
       store_departure(\$departure);
@@ -213,14 +235,10 @@ Setzt die Uhrzeit für die Abfrage. Beispiel: "03:14"
 sub query_departures {
   my $num = 10;
   my $time = DateTime->now(time_zone => "local");
-  my @departures = ();
+  my @ids = ();
 
   # Optionen verabeiten
-  GetOptions("<>" => sub {
-               push @departures, get_departures($_[0],
-                                                time => $time,
-                                                num => $num);
-             },
+  GetOptions("<>" => sub { push @ids, $_[0] },
              "num|n=i" => \$num,
              "date|d=s" => sub {
                $_[1] =~ /(\d\d?).(\d\d?).(\d\d\d\d)/;
@@ -233,6 +251,13 @@ sub query_departures {
                $time->set(hour => $1, minute => $2);
              },
              "help" => \&show_help);
+
+  # Abfahrten laden
+  my @departures = ();
+
+  foreach my $id (@ids) {
+    push @departures, get_departures($id, time => $time, num => $num);
+  }
 
   # Abfahrten sortieren
   my @d = sort {$a->get_time <=> $b->get_time} @departures;

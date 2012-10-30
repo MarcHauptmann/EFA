@@ -123,9 +123,12 @@ sub load_departures {
     $query .= sprintf " WHERE time >= %d", $after->epoch;
   }
 
+  $query .= " ORDER BY time";
+
   if (defined $limit) {
     $query .= sprintf " LIMIT %d", $limit;
   }
+
 
   $query .= ";";
   my $row_ref = $connection->selectall_arrayref($query, { Slice => {} });

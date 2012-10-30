@@ -156,6 +156,23 @@ sub test_load_departures_limit : Tests {
   is(scalar(@departures), 2, "zwei Departures werden zurückgegeben");
 }
 
+# Abfahrten werden nach der Zeit sortiert
+sub test_load_departes_sorts_by_time : Tests {
+  my $departure1 = make_departure(minute_offset => 10);
+  my $departure2 = make_departure(minute_offset => 15);
+  my $departure3 = make_departure(minute_offset => 20);
+
+  store_departure(\$departure2);
+  store_departure(\$departure3);
+  store_departure(\$departure1);
+
+  my @departures = load_departures();
+
+  is_deeply($departures[0], $departure1);
+  is_deeply($departures[1], $departure2);
+  is_deeply($departures[2], $departure3);
+}
+
 # Testet das Löschen aller Departures
 sub test_delete_departures : Tests {
   my $departure1 = make_departure(minute_offset => -10);
