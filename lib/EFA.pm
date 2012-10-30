@@ -96,16 +96,19 @@ sub departures_from_xml {
   foreach my $node (@nodeset) {
     my $departure = EFA::Departure->new();
 
+    my $station = EFA::Station->new(id => get_value("\@stopID", $node),
+                                    name => get_value("\@nameWO", $node));
+
     my $time = DateTime->new(year => get_value("itdDateTime/itdDate/\@year", $node),
                              month => get_value("itdDateTime/itdDate/\@month", $node),
                              day => get_value("itdDateTime/itdDate/\@day", $node),
                              hour => get_value("itdDateTime/itdTime/\@hour", $node),
                              minute => get_value("itdDateTime/itdTime/\@minute", $node),
-			     time_zone => "local");
+                             time_zone => "local");
 
     $departure->set_line(get_value("itdServingLine/\@symbol", $node));
     $departure->set_destination(get_value("itdServingLine/\@direction", $node));
-    $departure->set_station(get_value("\@nameWO", $node));
+    $departure->set_station($station);
     $departure->set_time($time);
 
     push @result, $departure;

@@ -20,7 +20,7 @@ has "line" => (isa => "Int",
                reader => "get_line",
                writer => "set_line");
 
-has "station" => (isa => "Str",
+has "station" => (isa => "Ref",
                   is => "rw",
                   reader => "get_station",
                   writer => "set_station");

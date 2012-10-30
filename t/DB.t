@@ -39,6 +39,8 @@ sub make_departure {
   $time->add(minutes => $minute_offset);
 
   return EFA::Departure->new(line => 120,
+                             station => EFA::Station->new(id => 10,
+                                                          name => "Test"),
                              destination => "Test",
                              time => $time);
 }

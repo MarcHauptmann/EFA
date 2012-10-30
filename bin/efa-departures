@@ -60,11 +60,12 @@ sub show_help {
 
 # Zeigt Abfahrten in einer Tabelle an
 sub show_departures {
-  my $table = Text::Table->new("Minuten", "Haltestelle", "Typ", "Linie", "Ziel");
+  my $table = Text::Table->new("Wartezeit", "Abfahrtszeit", "Haltestelle", "Typ", "Linie", "Endstation");
 
   for my $line (@_) {
     $table->add($line->get_wait_str(),
-                $line->get_station(),
+                $line->get_time()->strftime("%H:%M"),
+                $line->get_station()->get_name(),
                 $line->get_type(),
                 $line->get_line(),
                 $line->get_destination());
@@ -73,6 +74,22 @@ sub show_departures {
   print $table->title;
   print $table->rule("-");
   print $table->body;
+}
+
+sub set_date {
+  my ($date_ref, $str) = @_;
+
+  $str =~ /(\d\d?).(\d\d?).(\d\d\d\d)/;
+
+  $$date_ref->set(day => $1, month => $2, year => $3);
+}
+
+sub set_time {
+  my ($time_ref, $str) = @_;
+
+  $str =~ /(\d\d?):(\d\d?)/;
+
+  $$time_ref->set(hour => $1, minute => $2);
 }
 
 #------------------- Main ------------------------------------------------------
@@ -143,16 +160,8 @@ sub fetch_departures {
 
   GetOptions("num|n=i" => \$num,
              "<>" => sub { push @ids, $_[0] },
-             "date|d=s" => sub {
-               $_[1] =~ /(\d\d?).(\d\d?).(\d\d\d\d)/;
-
-               $time->set(day => $1, month => $2, year => $3);
-             },
-             "time|t=s" => sub {
-               $_[1] =~ /(\d\d?):(\d\d?)/;
-
-               $time->set(hour => $1, minute => $2);
-             },
+             "date|d=s" => sub { set_date(\$time, $_[1]) },
+             "time|t=s" => sub { set_time(\$time, $_[1]) },
              "help" => \&show_help);
 
   # Abfahrten laden
@@ -240,16 +249,8 @@ sub query_departures {
   # Optionen verabeiten
   GetOptions("<>" => sub { push @ids, $_[0] },
              "num|n=i" => \$num,
-             "date|d=s" => sub {
-               $_[1] =~ /(\d\d?).(\d\d?).(\d\d\d\d)/;
-
-               $time->set(day => $1, month => $2, year => $3);
-             },
-             "time|t=s" => sub {
-               $_[1] =~ /(\d\d?):(\d\d?)/;
-
-               $time->set(hour => $1, minute => $2);
-             },
+             "date|d=s" => sub { set_date(\$time, $_[1]) },
+             "time|t=s" => sub { set_time(\$time, $_[1]) },
              "help" => \&show_help);
 
   # Abfahrten laden

@@ -48,7 +48,7 @@ DROP TABLE IF EXISTS departures;
 DROP TABLE IF EXISTS stations;
 
 -- neue Tabellen erstellen
-CREATE TABLE departures (id INTEGER PRIMARY KEY ASC, line INTEGER, time INTEGER, destination CHAR(100));
+CREATE TABLE departures (id INTEGER PRIMARY KEY ASC, line INTEGER, time INTEGER, destination CHAR(100), station INTEGER);
 CREATE TABLE stations (id INTEGER PRIMARY KEY, name CHAR(100));
 EOF
 
@@ -78,13 +78,21 @@ sub store_departure {
 
     $connection->do(sprintf $stmt, $line, $dest, $epoch, $id);
   } else {
-    my $stmt =  "INSERT INTO departures (line, destination, time) VALUES ('%d', '%s', '%d');";
+    my $stmt =  "INSERT INTO departures (line, destination, time, station) VALUES (%d, '%s', %d, %d);";
 
-    $connection->do(sprintf $stmt, $line, $dest, $epoch);
+    $connection->do(sprintf $stmt, $line, $dest, $epoch, $departure->get_station()->get_id());
 
     my $id = $connection->selectrow_array("SELECT last_insert_rowid();");
 
     $departure->set_id($id);
+  }
+
+  # ggf. Station speichern
+  my $station_id = $departure->get_station()->get_id();
+
+  if (not(defined load_station_by_id($station_id))) {
+    my $station = $departure->get_station();
+    store_station(\$station);
   }
 }
 
@@ -105,6 +113,9 @@ sub load_departure_by_id {
   $departure->set_line($$row_ref{"line"});
   $departure->set_destination($$row_ref{"destination"});
   $departure->set_time($time);
+
+  my $station = load_station_by_id($row_ref->{station});
+  $departure->set_station($station);
 
   return $departure;
 }
@@ -138,10 +149,13 @@ sub load_departures {
   foreach my $row (@$row_ref) {
     my $time = DateTime->from_epoch(epoch => $row->{time}, time_zone => "local");
 
+    my $station = load_station_by_id($row->{station});
+
     push @departures, EFA::Departure->new(id => $row->{id},
                                           destination => $row->{destination},
                                           time => $time,
-                                          line => $row->{line});
+                                          line => $row->{line},
+                                          station => $station);
   }
 
   return @departures;
