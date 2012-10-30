@@ -46,4 +46,23 @@ subtest "Minimum mehrerer Werte kann berechnet werden" => sub {
   is(min(@list), 1, "Minimum von Listen kann berechnet werden");
 };
 
+subtest "Datum kann gesetz werden" => sub {
+  my $date = DateTime->now();
+
+  set_date(\$date, "10.12.2001");
+
+  is($date->day, 10, "Tag ist 10");
+  is($date->month, 12, "Monat ist 12");
+  is($date->year, 2001, "Jahr ist 2001");
+};
+
+subtest "Zeit kann gesetzt werden" => sub {
+  my $date = DateTime->now();
+
+  set_time(\$date, "03:14");
+
+  is($date->hour, 3, "Stunde ist 03");
+  is($date->minute, 14, "Minute ist 14");
+};
+
 done_testing();

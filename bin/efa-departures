@@ -76,22 +76,6 @@ sub show_departures {
   print $table->body;
 }
 
-sub set_date {
-  my ($date_ref, $str) = @_;
-
-  $str =~ /(\d\d?).(\d\d?).(\d\d\d\d)/;
-
-  $$date_ref->set(day => $1, month => $2, year => $3);
-}
-
-sub set_time {
-  my ($time_ref, $str) = @_;
-
-  $str =~ /(\d\d?):(\d\d?)/;
-
-  $$time_ref->set(hour => $1, minute => $2);
-}
-
 #------------------- Main ------------------------------------------------------
 
 sub main {
