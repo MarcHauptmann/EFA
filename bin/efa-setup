@@ -5,11 +5,13 @@ use EFA::DB;
 use strict;
 use warnings;
 
-init_db();
+my $file = $ARGV[0] || $ENV{HOME}."/.efa";
+
+init_db( url => "dbi:SQLite:dbname=$file" );
 reset_db_schema();
 close_db();
 
-print "Lokale Datenbank in ~/.efa aufgesetzt";
+print "Lokale Datenbank wurde in $file angelegt";
 
 __END__
 

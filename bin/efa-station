@@ -2,7 +2,7 @@
 
 use EFA;
 use Text::Table;
-use Getopt::Long;
+use Getopt::Long  qw(:config pass_through);
 use Pod::Usage;
 use EFA::DB;
 use utf8;
@@ -65,7 +65,16 @@ sub printStations {
 }
 
 sub main {
-  init_db();
+  my $dbfile = undef;
+
+  GetOptions("dbfile=s" => \$dbfile,
+             "help" => \&show_help);
+
+  if ($dbfile eq undef) {
+    init_db();
+  } else {
+    init_db( url => "dbi:SQLite:dbname=$dbfile");
+  }
 
   my $command = shift @ARGV;
 
@@ -138,6 +147,10 @@ Sucht in der Datenbank von L<efa.de|http://efa.de> nach der Station mit dem Name
 =head1 OPTIONS
 
 =over 8
+
+=item B<--dbfile> I<file>
+
+Benutzt I<file> als Datenbank
 
 =item B<--help>
 

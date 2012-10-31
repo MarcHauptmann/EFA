@@ -6,7 +6,7 @@ use EFA::Utils;
 use POSIX;
 use DateTime;
 use Text::Table;
-use Getopt::Long;
+use Getopt::Long qw(:config pass_through);
 use Pod::Usage;
 use strict;
 use warnings;
@@ -37,18 +37,6 @@ B<efa-departures> - Verwaltet die Abfahrten
 =item I<efa-deparures query> [OPTIONS] <id>
 
 =back
-
-=head1 OPTIONS
-
-=over 8
-
-=item B<--help>
-
-Zeigt diese Hilfe an.
-
-=back
-
-=head1 COMMANDS
 
 =cut
 
@@ -94,8 +82,33 @@ sub set_time {
 
 #------------------- Main ------------------------------------------------------
 
+=head1 OPTIONS
+
+=over 8
+
+=item B<--dbfile> I<file>
+
+Benutzt I<file> als Datenbank
+
+=item B<--help>
+
+Zeigt diese Hilfe an.
+
+=back
+
+=cut
+
 sub main {
-  init_db();
+  my $dbfile = undef;
+
+  GetOptions("dbfile=s" => \$dbfile,
+             "help" => \&show_help);
+
+  if (defined $dbfile) {
+    init_db();
+  } else {
+    init_db( url => "dbi:SQLite:dbname=$dbfile");
+  }
 
   my %commands = ( clear => \&clear_departures,
                    fetch => \&fetch_departures,
@@ -118,6 +131,8 @@ sub main {
 #------------------- Kommandos -------------------------------------------------
 
 =pod
+
+=head1 COMMANDS
 
 =head2 clear
 
