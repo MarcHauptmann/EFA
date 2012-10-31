@@ -11,7 +11,7 @@ init_db( url => "dbi:SQLite:dbname=$file" );
 reset_db_schema();
 close_db();
 
-print "Lokale Datenbank wurde in $file angelegt";
+print "Lokale Datenbank wurde in $file angelegt\n";
 
 __END__
 

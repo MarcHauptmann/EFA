@@ -105,9 +105,9 @@ sub main {
              "help" => \&show_help);
 
   if (defined $dbfile) {
-    init_db();
-  } else {
     init_db( url => "dbi:SQLite:dbname=$dbfile");
+  } else {
+    init_db();
   }
 
   my %commands = ( clear => \&clear_departures,
