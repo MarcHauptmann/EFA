@@ -3,7 +3,7 @@ package EFA::Utils;
 require Exporter;
 
 @ISA = qw(Exporter);
-@EXPORT = qw(parse_time min set_date set_time);
+@EXPORT = qw(parse_time min);
 
 use DateTime;
 use strict;
@@ -47,22 +47,4 @@ sub min {
   }
 
   return $min;
-}
-
-# Parst ein Datum und setzt es
-sub set_date {
-  my ($date_ref, $str) = @_;
-
-  $str =~ /(\d\d?).(\d\d?).(\d\d\d\d)/;
-
-  $$date_ref->set(day => $1, month => $2, year => $3);
-}
-
-# Parst einen Zeitausdruck und setzt ihn
-sub set_time {
-  my ($time_ref, $str) = @_;
-
-  $str =~ /(\d\d?):(\d\d?)/;
-
-  $$time_ref->set(hour => $1, minute => $2);
 }
