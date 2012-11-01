@@ -10,7 +10,7 @@ use utf8;
 
 #binmode(STDOUT, ":utf8");
 
-init_db( url => "dbi:SQLite:dbname=/home/marc/.efa" );
+init_db( url => "dbi:SQLite:dbname=/var/efa.db" );
 
 while (my $query = CGI::Fast->new()) {
   my @departures = load_departures(after => DateTime->now(time_zone => "local"),
