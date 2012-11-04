@@ -95,8 +95,21 @@ sub departures_from_xml {
 
   my @nodeset = $xp->findnodes("//itdDeparture");
 
+  my %staion_cache;
+
   foreach my $node (@nodeset) {
     my $departure = EFA::Departure->new();
+
+    my $dest_id = get_value("itdServingLine/\@destID", $node);
+    my $dest = $staion_cache{$dest_id};
+
+    if (not(defined $staion_cache{$dest_id})) {
+      my @stations = find_station($dest_id);
+
+      $dest = $stations[0] || EFA::Station->new(name => "");
+
+      $staion_cache{$dest_id} = $dest;
+    }
 
     my $station = EFA::Station->new(id => get_value("\@stopID", $node),
                                     name => get_value("\@nameWO", $node));
@@ -109,7 +122,7 @@ sub departures_from_xml {
                              time_zone => "local");
 
     $departure->set_line(get_value("itdServingLine/\@symbol", $node));
-    $departure->set_destination(get_value("itdServingLine/\@direction", $node));
+    $departure->set_destination($dest->get_name());
     $departure->set_station($station);
     $departure->set_time($time);
 

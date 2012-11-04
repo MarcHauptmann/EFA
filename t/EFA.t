@@ -28,33 +28,47 @@ sub read_test_xml {
 subtest "Departures können aus XML erzeugt werden" => sub {
   my $xml = read_test_xml("t/testInput.xml");
 
+  # find_station umdefinieren
+  undef &EFA::find_station;
+  local *EFA::find_station = sub { return EFA::Station->new( name => "") };
+
   # Departures laden
   my @departures = departures_from_xml($xml);
 
   is(scalar(@departures), 5, "5 Departures bekommen");
   isa_ok($departures[0], "EFA::Departure");
 
-  my $time1 = DateTime->new(year => 2012, month => 10, day => 20,
-                            hour => 20, minute => 48);
-
-  my $time2 = DateTime->new(year => 2012, month => 10, day => 20,
-                            hour => 20, minute => 55);
-
   my $station = EFA::Station->new(id => 25000341, name => "Vahrenwalder Platz");
 
+  my $departure1 = EFA::Departure->new(line => 2, destination => "",
+                                       type => "Stadtbahn", station => $station);
+  $departure1->set_time(DateTime->new(year => 2012, month => 10, day => 20,
+                                      hour => 20, minute => 48));
+
+  my $departure2 = EFA::Departure->new(line => 1, destination => "",
+                                       type => "Stadtbahn", station => $station);
+  $departure2->set_time(DateTime->new(year => 2012, month => 10, day => 20,
+                                      hour => 20, minute => 55));
+
   # erste Abfahrt
-  is($departures[0]->get_line(), 2, "erste Linie ist 2");
-  is($departures[0]->get_destination(), "Rethen", "erste Linie fährt nach Rethen");
-  is($departures[0]->get_time(), $time1, "erste Abfahrt ist um 20:48 am 20.10.2012");
-  is($departures[0]->get_type(), "Stadtbahn", "erste Abhfahrt ist Stadtbahn");
-  is_deeply($departures[0]->get_station(), $station, "erste Station stimmt");
+  is_deeply($departures[0], $departure1, "erste Abfahrt stimmt");
 
   # letzte Abfahrt
-  is($departures[4]->get_line(), 1, "letzte Linie ist 1");
-  is($departures[4]->get_destination(), "Laatzen", "letzte Linie fährt nach Laatzen");
-  is($departures[4]->get_time(), $time2, "letzte Abfahrt ist um 20:55 am 20.10.2012");
-  is($departures[4]->get_type(), "Stadtbahn", "letzte Abhfahrt ist Stadtbahn");
-  is_deeply($departures[4]->get_station(), $station, "letzte Station stimmt");
+  is_deeply($departures[4], $departure2, "letzte Abfahrt stimmt");
+};
+
+subtest "Destination ist leer wenn Station nicht gefunden werden konnte" => sub {
+  my $xml = read_test_xml("t/testInput.xml");
+
+  # find_station umdefinieren
+  undef &EFA::find_station;
+  local *EFA::find_station = sub { return () };
+
+  # Departures laden
+  my @departures = departures_from_xml($xml);
+
+  # Abfahrt
+  is_deeply($departures[0]->get_destination, "", "Destination ist leer");
 };
 
 subtest "Stationen können gesucht werden" => sub {
