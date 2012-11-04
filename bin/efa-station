@@ -9,98 +9,9 @@ use utf8;
 
 binmode(STDOUT, ":utf8");
 
-sub show_help {
-  pod2usage(verbose => 99,
-            sections => [ qw(SYNOPSIS COMMANDS OPTIONS) ]);
-}
-
-sub find_stations {
-  my $query = $_[0];
-
-  my @stations = find_station($query);
-
-  if (scalar(@stations) > 0) {
-    printStations(@stations);
-  } else {
-    print "keine Stationen gefunden\n";
-  }
-}
-
-sub add_station {
-  my $id = $_[0];
-
-  my @stations = find_station($id);
-
-  my $station = $stations[0];
-
-  if ($station) {
-    my $name = $station->get_name;
-    my $id = $station->get_id;
-    print "$name: $id\n";
-
-    store_station(\$station);
-  }
-}
-
-sub list_stations {
-  printStations(load_all_stations());
-}
-
-sub remove_station {
-  my $id = $_[0];
-
-  delete_station($id);
-}
-
-sub printStations {
-  my $table = Text::Table->new("Station", "ID");
-
-  foreach $station (@_) {
-    $table->add($station->get_name, $station->get_id);
-  }
-
-  print $table->title;
-  print $table->rule("-");
-  print $table->body;
-}
-
-sub main {
-  my $dbfile = undef;
-
-  GetOptions("dbfile=s" => \$dbfile,
-             "help" => \&show_help);
-
-  if ($dbfile eq undef) {
-    init_db();
-  } else {
-    init_db( url => "dbi:SQLite:dbname=$dbfile");
-  }
-
-  my $command = shift @ARGV;
-
-  if ($command eq "search") {
-    GetOptions("<>" => \&find_stations,
-               "help" => \&show_help);
-  } elsif ($command eq "add") {
-    GetOptions("<>" => \&add_station,
-               "help" => \&show_help);
-  } elsif ($command eq "rm") {
-    GetOptions("<>" => \&remove_station,
-               "help" => \&show_help);
-  } elsif ($command eq "list") {
-    list_stations();
-  } else {
-    print "unbekanntes Kommando: $command\n";
-
-    show_help();
-  }
-
-  close_db();
-}
-
 main();
 
-__END__
+=pod
 
 =encoding utf8
 
@@ -124,25 +35,162 @@ B<efa-station> - Verwaltet Haltestellen
 
 =head1 COMMANDS
 
-=over 8
-
-=item I<add> <id>
+=head2 I<add> <id>
 
 Fügt eine Haltestelle mit der ID <id> zur Datenbank hinzu
 
-=item I<list>
+=cut
+sub add_station {
+  my @ids = ();
 
-Listet alle Haltestellen in der Datenbank auf
+  GetOptions("<>" => sub { push @ids, $_[0] },
+             "help" => \&show_help);
 
-=item I<rm> <id>
+  foreach my $id (@ids) {
+    my @stations = find_station($id);
 
-Löscht eine Haltestelle aus der lokalen Datenbank
+    my $station = $stations[0];
 
-=item I<search> <name>
+    if ($station) {
+      my $name = $station->get_name;
+      my $id = $station->get_id;
+
+      store_station(\$station);
+
+      print "Haltestelle '$name' (id = $id) gespeichert\n";
+    } else {
+      print "keine Haltestellt mit der ID $id gefunden\n";
+    }
+  }
+}
+
+=pod
+
+=head2 I<search> [--city <Stadt>] <name>
 
 Sucht in der Datenbank von L<efa.de|http://efa.de> nach der Station mit dem Namen <name>
 
+=head3 Optionen
+
+=over 8
+
+=item I<--city> <Stadt>
+
+Bei der Suche die Stadt auf <Stadt> beschränken
+
 =back
+
+=cut
+sub find_stations {
+  my @queries = ();
+  my @stations = ();
+  my $city;
+
+  # Optionen auswerten
+  GetOptions("<>" => sub { push @queries, $_[0] },
+             "city=s" => \$city,
+             "help" => \&show_help);
+
+  # Stationen suchen
+  foreach my $query (@queries) {
+    push @stations, find_station($query, city => $city);
+  }
+
+  # Ausgabe
+  if (scalar(@stations) > 0) {
+    printStations(@stations);
+  } else {
+    print "keine Stationen gefunden\n";
+  }
+}
+
+=pod
+
+=head2 I<list>
+
+Listet alle Haltestellen in der Datenbank auf
+
+=cut
+sub list_stations {
+  printStations(load_all_stations());
+}
+
+=pod
+
+=head2 I<rm> <id>
+
+Löscht eine Haltestelle aus der lokalen Datenbank
+
+=cut
+sub remove_station {
+  my @ids = ();
+
+  GetOptions("<>" => sub { push @ids, $_[0] },
+             "help" => \&show_help);
+
+  foreach my $id (@ids) {
+    my $station = load_station_by_id($id);
+
+    if (defined $station) {
+      delete_station($id);
+
+      my $name = $station->get_name();
+
+      print "Haltestelle '$name' (id = $id) gelöscht\n";
+    } else {
+      print "Haltestelle mit der ID $id ist nicht in der Datenbank vorhanden\n";
+    }
+  }
+}
+
+sub main {
+  my $dbfile = undef;
+
+  GetOptions("dbfile=s" => \$dbfile,
+             "help" => \&show_help);
+
+  if ($dbfile eq undef) {
+    init_db();
+  } else {
+    init_db( url => "dbi:SQLite:dbname=$dbfile");
+  }
+
+  my %commands = (add => \&add_station,
+                  list => \&list_stations,
+                  rm => \&remove_station,
+                  search => \&find_stations);
+
+  my $command = shift @ARGV;
+
+  if (defined $commands{$command}) {
+    &{$commands{$command}}();
+  } else {
+    print "unbekanntes Kommando: $command\n";
+
+    show_help();
+  }
+
+  close_db();
+}
+
+sub printStations {
+  my $table = Text::Table->new("Station", "ID");
+
+  foreach $station (@_) {
+    $table->add($station->get_name, $station->get_id);
+  }
+
+  print $table->title;
+  print $table->rule("-");
+  print $table->body;
+}
+
+sub show_help {
+  pod2usage(verbose => 99,
+            sections => [ qw(SYNOPSIS COMMANDS OPTIONS) ]);
+}
+
+__END__
 
 =head1 OPTIONS
 
@@ -156,6 +204,6 @@ Benutzt I<file> als Datenbank
 
 Zeigt diese Hilfe
 
-=back
+  =back
 
 

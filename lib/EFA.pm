@@ -65,8 +65,10 @@ sub get_value {
 }
 
 sub find_station {
-  my $query = $_[0];
+  my ($query, %parameters) = @_;
   my $ua = LWP::UserAgent->new();
+
+  my $city = $parameters{city} || "";
 
   my $url = "http://mobil.efa.de/mobile3/XSLT_DM_REQUEST?maxAssignedStops=1";
 
@@ -75,7 +77,7 @@ sub find_station {
   $url .= "&name_dm=$query";
   $url .= "&limit=10";
   $url .= "&type_dm=any";
-  $url .= "&place_dm=Hannover";
+  $url .= "&place_dm=$city";
   $url .= "&locationServerActive=1";
 
   my $response = $ua->get($url);

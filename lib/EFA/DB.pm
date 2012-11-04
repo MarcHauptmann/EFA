@@ -206,7 +206,7 @@ sub load_station_by_id {
   my $row_ref = $connection->selectrow_hashref("SELECT * FROM stations WHERE id=$id");
 
   if (defined $row_ref) {
-    return EFA::Station->new(id => $id, name => $row_ref->{"name"});
+    return EFA::Station->new(id => $row_ref->{id}, name => $row_ref->{name});
   } else {
     return undef;
   }
@@ -218,7 +218,7 @@ sub load_all_stations {
   my $row_ref = $connection->selectall_arrayref("SELECT * FROM stations", {Slice => {}});
 
   foreach my $row (@$row_ref) {
-    push @stations, EFA::Station->new(id => $row->{"id"}, name => $row->{"name"});
+    push @stations, EFA::Station->new(id => $row->{id}, name => $row->{name});
   }
 
   return @stations;
