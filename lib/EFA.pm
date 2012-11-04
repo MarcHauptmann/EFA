@@ -10,8 +10,8 @@ $VERSION = "0.0.1";
 use EFA::Departure;
 use EFA::Utils;
 use EFA::Station;
+use EFA::Web;
 use XML::XPath;
-use LWP::UserAgent;
 use DateTime;
 use utf8;
 use strict;
@@ -20,8 +20,6 @@ use Encode;
 
 sub get_departures {
   my ($station_id, %values) = @_;
-  my $ua = LWP::UserAgent->new();
-
   my $num = 5;
 
   if ($values{"num"}) {
@@ -34,20 +32,7 @@ sub get_departures {
     $time = $values{"time"};
   }
 
-  my $url = "http://mobil.efa.de/mobile3/XSLT_DM_REQUEST?maxAssignedStops=1";
-
-  $url .= "&outputFormat=xml";
-  $url .= "&mode=direct";
-  $url .= "&name_dm=$station_id";
-  $url .= "&limit=$num";
-  $url .= "&type_dm=stopID";
-  $url .= "&itdTimeHour=".$time->hour;
-  $url .= "&itdTimeMinute=".$time->minute;
-  $url .= "&itdDate=".$time->year.$time->month.$time->day;
-
-  my $response = $ua->get($url);
-
-  my $xml = $response->content();
+  my $xml = EFA::Web::request_departures($station_id, $time);
 
   return departures_from_xml($xml);
 }
@@ -66,23 +51,10 @@ sub get_value {
 
 sub find_station {
   my ($query, %parameters) = @_;
-  my $ua = LWP::UserAgent->new();
 
   my $city = $parameters{city} || "";
 
-  my $url = "http://mobil.efa.de/mobile3/XSLT_DM_REQUEST?maxAssignedStops=1";
-
-  $url .= "&outputFormat=xml";
-  $url .= "&mode=direct";
-  $url .= "&name_dm=$query";
-  $url .= "&limit=10";
-  $url .= "&type_dm=any";
-  $url .= "&place_dm=$city";
-  $url .= "&locationServerActive=1";
-
-  my $response = $ua->get($url);
-
-  my $xml = $response->content();
+  my $xml = EFA::Web::request_stations($query, $city);
 
   return stations_from_xml($xml);
 }
