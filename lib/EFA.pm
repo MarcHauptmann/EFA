@@ -32,7 +32,7 @@ sub get_departures {
     $time = $values{"time"};
   }
 
-  my $xml = EFA::Web::request_departures($station_id, $time);
+  my $xml = EFA::Web::request_departures($station_id, $time, num => $num);
 
   return departures_from_xml($xml);
 }
