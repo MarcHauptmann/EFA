@@ -21,8 +21,6 @@ sub request_departures {
   $url .= "&itdTimeMinute=".$time->minute;
   $url .= "&itdDate=".$time->year.$time->month.$time->day;
 
-  print "frage $num Abfahrten ab\n";
-
   my $ua = LWP::UserAgent->new();
   my $response = $ua->get($url);
 
